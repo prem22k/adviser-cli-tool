@@ -51,23 +51,43 @@ class LLMClient:
         except (RateLimitError, APIConnectionError, APITimeoutError):
             raise
 
-    def _to_gemini_contents(self, messages: list[dict[str, str]]) -> list[dict[str, Any]]:
+    def _to_gemini_chat(self, messages: list[dict[str, str]]) -> tuple[list[dict[str, Any]], str]:
         system_prompt = ""
-        contents: list[dict[str, Any]] = []
+        history: list[dict[str, Any]] = []
+        pending_user_parts: list[str] = []
+
         for message in messages:
             role = message["role"]
-            content = message["content"]
-            if role == "system":
-                system_prompt = content.strip()
+            content = message["content"].strip()
+            if not content:
                 continue
-            mapped_role = "model" if role == "assistant" else "user"
-            if mapped_role == "user" and system_prompt:
-                content = f"{system_prompt}\n\n{content}".strip()
+
+            if role == "system":
+                system_prompt = content
+                continue
+
+            if role == "assistant":
+                history.append({"role": "model", "parts": [content]})
+                continue
+
+            if not pending_user_parts and system_prompt:
+                pending_user_parts.append(system_prompt)
                 system_prompt = ""
-            contents.append({"role": mapped_role, "parts": [content]})
-        if system_prompt and not contents:
-            contents.append({"role": "user", "parts": [system_prompt]})
-        return contents
+            pending_user_parts.append(content)
+            history.append({"role": "user", "parts": ["\n\n".join(pending_user_parts)]})
+            pending_user_parts = []
+
+        if not history:
+            initial = system_prompt or "Hello."
+            history.append({"role": "user", "parts": [initial]})
+            return history[:-1], history[-1]["parts"][0]
+
+        last_message = history[-1]
+        if last_message["role"] != "user":
+            final_user_message = system_prompt or "Continue."
+            return history, final_user_message
+
+        return history[:-1], str(last_message["parts"][0])
 
     def _call_gemini(self, provider: Any, messages: list[dict[str, str]]) -> str:
         try:
@@ -77,7 +97,9 @@ class LLMClient:
 
         genai.configure(api_key=provider.api_key)
         model = genai.GenerativeModel(model_name=provider.model)
-        response = model.generate_content(self._to_gemini_contents(messages), stream=True)
+        history, prompt = self._to_gemini_chat(messages)
+        chat = model.start_chat(history=history)
+        response = chat.send_message(prompt, stream=True)
         chunks: list[str] = []
         for chunk in response:
             token = getattr(chunk, "text", "") or ""
@@ -88,6 +110,29 @@ class LLMClient:
         return "".join(chunks)
 
     def chat(self, messages: list[dict[str, str]]) -> str:
+        try:
+            from openai import APIConnectionError, APITimeoutError, RateLimitError
+        except ImportError as exc:
+            raise RuntimeError("The openai package is required for chat execution.") from exc
+
+        try:
+            import google.api_core.exceptions as google_exceptions
+        except ImportError:
+            google_exceptions = None
+
+        retryable_errors: tuple[type[BaseException], ...] = (
+            RateLimitError,
+            APIConnectionError,
+            APITimeoutError,
+        )
+        if google_exceptions is not None:
+            retryable_errors = retryable_errors + (
+                google_exceptions.TooManyRequests,
+                google_exceptions.ServiceUnavailable,
+                google_exceptions.DeadlineExceeded,
+                google_exceptions.GoogleAPICallError,
+            )
+
         available = self.circuit_breaker.available_providers(self.providers)
         if not available:
             raise RuntimeError("No healthy providers available. Wait for cooldown or reconfigure Adviser.")
@@ -98,10 +143,12 @@ class LLMClient:
                 if provider.kind == "gemini":
                     return self._call_gemini(provider, messages)
                 return self._call_openai_compatible(provider, messages)
-            except Exception as exc:
+            except retryable_errors as exc:
                 last_error = exc
                 self.circuit_breaker.mark_failed(provider.name, str(exc))
                 console.print(
                     f"[yellow]Provider {provider.name} failed, trying next provider:[/yellow] {exc}"
                 )
+            except Exception:
+                raise
         raise RuntimeError("All configured providers failed.") from last_error

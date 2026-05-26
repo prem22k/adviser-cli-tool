@@ -68,12 +68,8 @@ def _enforce_https(url: str) -> str:
 
 
 def validate() -> None:
-    has_cloud_key = bool(GROQ_API_KEY or GEMINI_API_KEY)
-    has_local_provider = bool(OLLAMA_MODEL)
-    if not has_cloud_key and not has_local_provider:
-        raise RuntimeError(
-            "No LLM providers configured. Set GROQ_API_KEY or GEMINI_API_KEY, or configure OLLAMA_MODEL."
-        )
+    if not (GROQ_API_KEY or GEMINI_API_KEY):
+        raise RuntimeError("No API keys configured. Set GROQ_API_KEY or GEMINI_API_KEY.")
     if not DATA_PATH.exists():
         raise FileNotFoundError(f"Configured DATA_PATH does not exist: {DATA_PATH}")
 
