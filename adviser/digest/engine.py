@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from typing import Any
@@ -31,7 +32,7 @@ def main(providers: list[Any] | None = None) -> Path:
         raise RuntimeError("No corpus text available for digest generation.")
 
     chapters = [corpus[index : index + CHAPTER_SIZE] for index in range(0, len(corpus), CHAPTER_SIZE)]
-    plan = estimate_plan()
+    plan = estimate_plan(providers=providers)
     console.print(
         Panel.fit(
             f"Corpus size: {plan['total_chars']:,} chars\n"
@@ -65,6 +66,8 @@ def main(providers: list[Any] | None = None) -> Path:
             ]
             summary = client.chat(messages)
             handle.write(f"## Chapter {chapter_number} Analysis\n\n{summary.strip()}\n\n")
+            handle.flush()
+            os.fsync(handle.fileno())
 
     console.print(f"[cyan]Digest saved:[/cyan] {SUMMARY_PATH}")
     return SUMMARY_PATH

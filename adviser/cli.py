@@ -74,10 +74,17 @@ def ingest_command(force: bool = typer.Option(False, "--force", "-f", help="Rebu
 @app.command("digest")
 def digest_command(plan: bool = typer.Option(False, "--plan", "-p", help="Estimate a digest plan only.")) -> None:
     profile = _activate_runtime_profile(None)
+    providers = _selected_providers(profile)
     if plan:
-        estimate_plan()
+        estimate_plan(providers=providers)
         return
-    digest_main(providers=_selected_providers(profile))
+    try:
+        settings.validate()
+    except (RuntimeError, FileNotFoundError) as exc:
+        console.print(f"[bold red]{exc}[/bold red]")
+        console.print("Set your keys in `.env` or run `adviser init` to create a profile.")
+        raise typer.Exit(code=1) from exc
+    digest_main(providers=providers)
 
 
 @app.command("init")

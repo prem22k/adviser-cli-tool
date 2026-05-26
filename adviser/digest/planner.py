@@ -21,7 +21,7 @@ PROVIDER_SPEEDS = {
 }
 
 
-def estimate_plan() -> dict[str, Any]:
+def estimate_plan(providers: list[Any] | None = None) -> dict[str, Any]:
     loader = DocumentLoader()
     documents = loader.load(settings.DATA_PATH)
     total_chars = sum(len(str(document["text"])) for document in documents)
@@ -35,7 +35,7 @@ def estimate_plan() -> dict[str, Any]:
     table.add_row("Estimated chapters", str(chapter_count))
     table.add_row("Estimated output tokens", f"{estimated_output_tokens:,}")
 
-    for provider in settings.get_provider_chain():
+    for provider in providers or settings.get_provider_chain():
         speed = PROVIDER_SPEEDS.get(provider.name, 60)
         seconds = max(1, estimated_output_tokens // speed)
         table.add_row(f"{provider.name} ETA", f"~{seconds // 60}m {seconds % 60}s")
