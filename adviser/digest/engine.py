@@ -17,7 +17,10 @@ from adviser.llm.client import LLMClient
 
 console = Console()
 SUMMARY_PATH = Path("data/global_summary.txt")
-CHAPTER_PATTERN = re.compile(r"^## Chapter (\d+) Analysis\s*$", re.MULTILINE)
+CHAPTER_BLOCK_PATTERN = re.compile(
+    r"^## Chapter (\d+) Analysis\s*\n+(.+?)(?=^## Chapter \d+ Analysis\s*$|\Z)",
+    re.MULTILINE | re.DOTALL,
+)
 
 
 def main(providers: list[Any] | None = None) -> Path:
@@ -71,7 +74,10 @@ def _resume_index(path: Path) -> int:
     if not path.exists():
         return 0
     content = path.read_text(encoding="utf-8")
-    matches = CHAPTER_PATTERN.findall(content)
+    matches = CHAPTER_BLOCK_PATTERN.findall(content)
     if not matches:
         return 0
-    return max(int(match) for match in matches)
+    completed = [int(chapter) for chapter, body in matches if body.strip()]
+    if not completed:
+        return 0
+    return max(completed)

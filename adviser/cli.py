@@ -7,7 +7,9 @@ import shutil
 from pathlib import Path
 
 import typer
+from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit import PromptSession
+from prompt_toolkit.styles import Style
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
@@ -25,6 +27,7 @@ from adviser.llm.memory import ConversationMemory
 from adviser.retrieval.retriever import HybridRetriever
 
 console = Console()
+PROMPT_STYLE = Style.from_dict({"prompt": "bold ansicyan"})
 
 app = typer.Typer(help="Adviser CLI", invoke_without_command=True, no_args_is_help=False)
 snapshot_app = typer.Typer(help="Backup and restore vector database snapshots.")
@@ -90,7 +93,8 @@ def init_command() -> None:
     )
 
     name = Prompt.ask("Profile name", default="default")
-    data_path = Prompt.ask("Absolute path to your document folder", default=str(Path.cwd() / "data" / "corpus"))
+    default_data_path = str((Path.home() / "Documents" / "corpus").expanduser().resolve())
+    data_path = Prompt.ask("Absolute path to your document folder", default=default_data_path)
     persona = Prompt.ask("Personal instructions", default=settings.ADVISER_PERSONA)
     enable_cloud = Confirm.ask("Enable cloud APIs (Groq/Gemini)?", default=True)
     enable_ollama = Confirm.ask("Enable Ollama (local)?", default=bool(settings.OLLAMA_MODEL))
@@ -143,7 +147,7 @@ def profile_list() -> None:
     table.add_column("Document Path", style="white")
     for name in ProfileManager.list_profiles():
         profile = ProfileManager.load(name)
-        marker = "*" if active and active.name == name else ""
+        marker = "[green]*[/green]" if active and active.name == name else ""
         table.add_row(marker, profile.name, profile.data_path)
     console.print(table)
 
@@ -208,7 +212,7 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
     console.print(header)
 
     while True:
-        query = session.prompt([("class:user", "User ❯ ")])
+        query = session.prompt(HTML("<prompt>User ❯ </prompt>"), style=PROMPT_STYLE)
         if not query.strip():
             continue
         command = query.strip().lower()

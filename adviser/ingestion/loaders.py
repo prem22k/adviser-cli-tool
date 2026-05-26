@@ -85,7 +85,7 @@ class DocumentLoader:
             import pdfplumber
         except ImportError as exc:
             raise RuntimeError(
-                "PDF support requires pdfplumber. Install project dependencies before ingesting PDFs."
+                "PDF support requires pdfplumber. Run `pip install pdfplumber` before ingesting PDF files."
             ) from exc
 
         pages: list[str] = []
@@ -100,7 +100,7 @@ class DocumentLoader:
             from docx import Document
         except ImportError as exc:
             raise RuntimeError(
-                "DOCX support requires python-docx. Install project dependencies before ingesting DOCX files."
+                "DOCX support requires python-docx. Run `pip install python-docx` before ingesting DOCX files."
             ) from exc
 
         document = Document(path)
