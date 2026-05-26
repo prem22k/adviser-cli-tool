@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adviser-cli"
+version = "0.1.0"
+description = "Terminal-native zero-infrastructure RAG assistant for local documents."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "chromadb>=0.5.0",
+  "sentence-transformers>=3.0.0",
+  "rank-bm25>=0.2.2",
+  "openai>=1.40.0",
+  "google-generativeai>=0.8.0",
+  "rich>=13.0.0",
+  "python-dotenv>=1.0.0",
+  "tiktoken>=0.7.0",
+  "tqdm>=4.66.0",
+  "typer>=0.12.0",
+  "pdfplumber>=0.11.0",
+  "python-docx>=1.1.0",
+  "ruamel.yaml>=0.18.0",
+  "prompt_toolkit>=3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "mypy",
+  "black",
+  "flake8",
+]
+
+[project.scripts]
+adviser = "adviser.cli:app"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["adviser*"]
