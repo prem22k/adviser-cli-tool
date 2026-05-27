@@ -44,6 +44,7 @@ CONVERSATION_WINDOW = int(os.getenv("CONVERSATION_WINDOW", "6"))
 
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "").strip()
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").strip()
+AIRLLM_MODEL = os.getenv("AIRLLM_MODEL", "").strip()
 USE_AUDITOR = os.getenv("USE_AUDITOR", "false").strip().lower() == "true"
 USE_RERANKER = os.getenv("USE_RERANKER", "false").strip().lower() == "true"
 
@@ -118,6 +119,14 @@ def get_provider_chain() -> list[ProviderConfig]:
                 kind="openai-compatible",
                 model=OLLAMA_MODEL,
                 base_url=_enforce_https(OLLAMA_BASE_URL.rstrip("/") + "/v1"),
+            )
+        )
+    if AIRLLM_MODEL:
+        providers.append(
+            ProviderConfig(
+                name="airllm",
+                kind="airllm",
+                model=AIRLLM_MODEL,
             )
         )
     return providers

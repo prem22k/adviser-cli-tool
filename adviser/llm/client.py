@@ -142,6 +142,11 @@ class LLMClient:
             try:
                 if provider.kind == "gemini":
                     return self._call_gemini(provider, messages)
+                if provider.kind == "airllm":
+                    from adviser.llm.airllm_provider import generate_chat
+                    answer = generate_chat(provider.model, messages)
+                    console.print(answer, style="bold green")
+                    return answer
                 return self._call_openai_compatible(provider, messages)
             except retryable_errors as exc:
                 last_error = exc
