@@ -24,6 +24,8 @@ class ProviderConfig:
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash").strip()
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile").strip()
 
 DATA_PATH = Path(os.getenv("DATA_PATH", "./data/corpus.txt")).expanduser()
 DB_PATH = Path(os.getenv("DB_PATH", "./data/chroma_db")).expanduser()
@@ -82,6 +84,8 @@ def apply_profile(profile: Any) -> None:
     global DATA_PATH
     global DB_PATH
     global TOP_K_RETRIEVE
+    global GEMINI_MODEL
+    global GROQ_MODEL
 
     ADVISER_PERSONA = profile.persona
     DATA_PATH = Path(profile.data_path).expanduser()
@@ -89,6 +93,11 @@ def apply_profile(profile: Any) -> None:
     CHUNK_SIZE = int(profile.chunk_size)
     CHUNK_OVERLAP = int(profile.chunk_overlap)
     TOP_K_RETRIEVE = int(profile.top_k)
+
+    if hasattr(profile, "gemini_model"):
+        GEMINI_MODEL = profile.gemini_model
+    if hasattr(profile, "groq_model"):
+        GROQ_MODEL = profile.groq_model
 
 
 def get_provider_chain() -> list[ProviderConfig]:
@@ -98,7 +107,7 @@ def get_provider_chain() -> list[ProviderConfig]:
             ProviderConfig(
                 name="gemini",
                 kind="gemini",
-                model=os.getenv("GEMINI_MODEL", "gemini-3.5-flash"),
+                model=GEMINI_MODEL,
                 api_key=GEMINI_API_KEY,
             )
         )
@@ -107,7 +116,7 @@ def get_provider_chain() -> list[ProviderConfig]:
             ProviderConfig(
                 name="groq",
                 kind="openai-compatible",
-                model=os.getenv("GROQ_MODEL", "llama-3.1-8b-instant"),
+                model=GROQ_MODEL,
                 api_key=GROQ_API_KEY,
                 base_url=_enforce_https(os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")),
             )

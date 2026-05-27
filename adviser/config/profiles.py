@@ -23,6 +23,8 @@ class Profile:
     chunk_overlap: int = 80
     top_k: int = 15
     providers: list[str] = field(default_factory=list)
+    gemini_model: str = "gemini-3.5-flash"
+    groq_model: str = "llama-3.3-70b-versatile"
 
     def save(self) -> Path:
         PROFILES_DIR.mkdir(parents=True, exist_ok=True)
@@ -40,6 +42,8 @@ class ProfileManager:
         data_path: str,
         db_path: str,
         providers: list[str],
+        gemini_model: str = "gemini-3.5-flash",
+        groq_model: str = "llama-3.3-70b-versatile",
     ) -> Profile:
         profile = Profile(
             name=name,
@@ -47,6 +51,8 @@ class ProfileManager:
             data_path=data_path,
             db_path=db_path,
             providers=providers,
+            gemini_model=gemini_model,
+            groq_model=groq_model,
         )
         profile.save()
         return profile

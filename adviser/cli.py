@@ -108,11 +108,40 @@ def init_command() -> None:
     enable_cloud = Confirm.ask("Enable cloud APIs (Groq/Gemini)?", default=True)
     enable_ollama = Confirm.ask("Enable Ollama (local)?", default=True)
 
+    gemini_model = "gemini-3.5-flash"
+    groq_model = "llama-3.3-70b-versatile"
+
     providers: list[str] = []
     if enable_cloud:
         for provider in ("gemini", "groq"):
             if provider not in providers:
                 providers.append(provider)
+
+        # Prompt for Gemini Model Selection
+        console.print("\n[bold cyan]Choose your Google Gemini model:[/bold cyan]")
+        console.print("1. [bold green]gemini-3.5-flash[/bold green] (Most intelligent Flash, sustained fast performance - Recommended default)")
+        console.print("2. [bold white]gemini-3.1-pro-preview[/bold white] (Advanced reasoning and agentic problem solving)")
+        console.print("3. [bold white]gemini-3.1-flash-lite[/bold white] (Frontier performance at a fraction of the cost)")
+        gemini_choice = Prompt.ask("Select option [1/2/3]", default="1")
+        if gemini_choice == "2":
+            gemini_model = "gemini-3.1-pro-preview"
+        elif gemini_choice == "3":
+            gemini_model = "gemini-3.1-flash-lite"
+
+        # Prompt for Groq Model Selection
+        console.print("\n[bold cyan]Choose your Groq cloud model:[/bold cyan]")
+        console.print("1. [bold green]llama-3.3-70b-versatile[/bold green] (Versatile flagship, balanced reasoning - Recommended default)")
+        console.print("2. [bold white]llama-3.1-8b-instant[/bold white] (High speed, lightweight, token saving)")
+        console.print("3. [bold white]openai/gpt-oss-120b[/bold white] (Flagship open-weights, advanced tool use & reasoning)")
+        console.print("4. [bold white]openai/gpt-oss-20b[/bold white] (Ultra-fast 1000 t/s, budget-friendly)")
+        groq_choice = Prompt.ask("Select option [1/2/3/4]", default="1")
+        if groq_choice == "2":
+            groq_model = "llama-3.1-8b-instant"
+        elif groq_choice == "3":
+            groq_model = "openai/gpt-oss-120b"
+        elif groq_choice == "4":
+            groq_model = "openai/gpt-oss-20b"
+
     if enable_ollama:
         providers.append("ollama")
 
@@ -153,6 +182,8 @@ def init_command() -> None:
         data_path=str(Path(data_path).expanduser()),
         db_path=db_path,
         providers=providers,
+        gemini_model=gemini_model,
+        groq_model=groq_model,
     )
     ProfileManager.set_active(profile.name)
     console.print(

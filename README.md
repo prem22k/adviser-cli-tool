@@ -31,7 +31,7 @@ Adviser is a terminal-native, zero-infrastructure Retrieval-Augmented Generation
 *   **Reciprocal Rank Fusion (RRF)**: Merges results from both dense and sparse sources, balancing weights (`BM25_WEIGHT` vs `VECTOR_WEIGHT`) to produce exceptionally high retrieval precision without the latency of heavy reranker models.
 
 ### ⚡ 2. Resilient Priority-Cascade Routing
-*   **Provider Chain**: Cascades your query down a prioritized chain of LLMs—from Google Gemini (`gemini-1.5-flash`), to Groq (`llama-3.1-8b-instant`), down to local offline models.
+*   **Provider Chain**: Cascades your query down a prioritized chain of LLMs—from Google Gemini (`gemini-3.5-flash`), to Groq (`llama-3.1-8b-instant`), down to local offline models.
 *   **Session-Aware Circuit Breaker**: Actively monitors provider health. If a primary service encounters a rate limit (HTTP 429), connection timeout, or transient outage, the circuit breaker trips, sets a 300-second cooldown, and automatically routes the prompt to the next fallback provider in line without interrupting your active chat.
 
 ### 🖥️ 3. Hardware Auto-Detection & Local LLM Sizing
@@ -210,7 +210,7 @@ print(smart_chunk('Paragraph 1.\n\nParagraph 2.', chunk_size=100, overlap=10))
 print(DocumentLoader()._strip_frontmatter('---\ntitle: test\n---\nBody content'))
 
 # 3. LLM Router Failover Test
-prov1 = ProviderConfig(name='gemini', kind='gemini', model='gemini-1.5-flash')
+prov1 = ProviderConfig(name='gemini', kind='gemini', model='gemini-3.5-flash')
 prov2 = ProviderConfig(name='groq', kind='openai-compatible', model='llama-3.1-8b-instant')
 breaker = CircuitBreaker([prov1, prov2])
 breaker.mark_failed('gemini', 'rate_limit')
