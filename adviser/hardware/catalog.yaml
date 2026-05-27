@@ -1,0 +1,213 @@
+# Adviser Hardware Catalog
+# ─────────────────────────────────────────────────────────────────
+# Edit this file to add, remove, or update models.
+# All LLM ids are Ollama tags. All embed ids are Ollama tags.
+#
+# LLM fields:
+#   id            string   Ollama model tag
+#   params_b      float    Total parameters in billions
+#   category      string   general | coding | reasoning | multimodal
+#   active_params_b       float (MoE only) — active params per token
+#   expert_count          int   (MoE only)
+#   experts_active_per_token int (MoE only)
+#
+# Embed fields:
+#   id            string   Ollama model tag
+#   params_b      float    Total parameters in billions
+#   disk_mb       int      Approximate disk size in MB (informational)
+#   note          string   Optional human-readable note
+#
+# Sources: Ollama library, morphllm.com April 2026,
+#          promptquorum.com May 2026, localaimaster.com March 2026
+# Last updated: May 2026 — check ollama.com/library for newer models
+# ─────────────────────────────────────────────────────────────────
+
+llm_catalog:
+
+  # ── General purpose ──────────────────────────────────────────
+  - id: "llama3.2:1b"
+    params_b: 1.0
+    category: "general"
+
+  - id: "gemma2:2b"
+    params_b: 2.0
+    category: "general"
+
+  - id: "llama3.2:3b"
+    params_b: 3.0
+    category: "general"
+
+  - id: "gemma3:4b"
+    params_b: 4.0
+    category: "general"
+
+  - id: "mistral:7b"
+    params_b: 7.0
+    category: "general"
+
+  - id: "llama3.1:8b"
+    params_b: 8.0
+    category: "general"
+
+  - id: "gemma2:9b"
+    params_b: 9.0
+    category: "general"
+
+  - id: "mistral-nemo:12b"
+    params_b: 12.0
+    category: "general"
+
+  - id: "qwen2.5:14b"
+    params_b: 14.0
+    category: "general"
+
+  - id: "gemma2:27b"
+    params_b: 27.0
+    category: "general"
+
+  - id: "qwen3:30b"
+    params_b: 30.0
+    category: "general"
+
+  - id: "llama3.3:70b"
+    params_b: 70.0
+    category: "general"
+
+  # ── Coding ───────────────────────────────────────────────────
+  - id: "qwen2.5-coder:7b"
+    params_b: 7.0
+    category: "coding"
+
+  - id: "qwen2.5-coder:14b"
+    params_b: 14.0
+    category: "coding"
+
+  - id: "deepseek-coder-v2:16b"
+    params_b: 16.0
+    category: "coding"
+
+  - id: "qwen2.5-coder:32b"
+    params_b: 32.0
+    category: "coding"
+
+  - id: "qwen3-coder:30b"
+    params_b: 30.0
+    category: "coding"
+
+  - id: "devstral-small-2:24b"
+    params_b: 24.0
+    category: "coding"
+
+  # ── Reasoning ────────────────────────────────────────────────
+  - id: "deepseek-r1:1.5b"
+    params_b: 1.5
+    category: "reasoning"
+
+  - id: "deepseek-r1:7b"
+    params_b: 7.0
+    category: "reasoning"
+
+  - id: "deepseek-r1:8b"
+    params_b: 8.0
+    category: "reasoning"
+
+  - id: "deepseek-r1:14b"
+    params_b: 14.0
+    category: "reasoning"
+
+  - id: "phi4:14b"
+    params_b: 14.0
+    category: "reasoning"
+
+  - id: "deepseek-r1:32b"
+    params_b: 32.0
+    category: "reasoning"
+
+  # ── MoE models — active_params_b required ────────────────────
+  # Llama 4 Scout: 109B total, 17B active, MoE
+  # Source: Meta announcement April 2026, confirmed on Ollama library
+  - id: "llama4:scout"
+    params_b: 109.0
+    category: "general"
+    active_params_b: 17.0
+    expert_count: 16
+    experts_active_per_token: 1
+
+  # Qwen3-30B-A3B: 30B total, 3B active, MoE
+  # Source: Alibaba Qwen3 release notes
+  - id: "qwen3:30b-a3b"
+    params_b: 30.0
+    category: "general"
+    active_params_b: 3.0
+    expert_count: 128
+    experts_active_per_token: 8
+
+  # ── Multimodal ───────────────────────────────────────────────
+  - id: "llava:7b"
+    params_b: 7.0
+    category: "multimodal"
+
+  - id: "llama3.2-vision:11b"
+    params_b: 11.0
+    category: "multimodal"
+
+  - id: "llava:13b"
+    params_b: 13.0
+    category: "multimodal"
+
+  - id: "gemma4:9b"
+    params_b: 9.0
+    category: "multimodal"
+
+  - id: "gemma4:26b"
+    params_b: 26.0
+    category: "multimodal"
+
+
+# ─────────────────────────────────────────────────────────────────
+embed_catalog:
+
+  # all-minilm: 22M params, ~50MB disk
+  # Fastest, lowest quality. Good baseline for low-RAM machines.
+  - id: "all-minilm"
+    params_b: 0.022
+    disk_mb: 50
+    note: "Fastest option. Good for low-RAM machines."
+
+  # nomic-embed-text: 137M params, ~274MB disk
+  # MTEB score 62.39 — matches OpenAI text-embedding-3-small
+  # Best default for most users. Long context (8192 tokens).
+  - id: "nomic-embed-text"
+    params_b: 0.137
+    disk_mb: 274
+    note: "Recommended default. Matches OpenAI text-embedding-3-small quality."
+
+  # nomic-embed-text-v2-moe: MoE multilingual embedding
+  # ~300MB disk. 100+ languages. Matryoshka embeddings supported.
+  - id: "nomic-embed-text-v2-moe"
+    params_b: 0.137
+    disk_mb: 300
+    note: "Best for multilingual RAG. MoE architecture."
+
+  # mxbai-embed-large: 335M params, ~670MB disk
+  # MTEB score 64.68 — matches OpenAI text-embedding-3-large
+  # Best English quality under 1GB.
+  - id: "mxbai-embed-large"
+    params_b: 0.335
+    disk_mb: 670
+    note: "Best English quality under 1GB. Matches text-embedding-3-large."
+
+  # bge-m3: 568M params, ~1.2GB disk
+  # MTEB multilingual. Supports dense + sparse + ColBERT retrieval.
+  # Best for hybrid search (dense + BM25 in one model).
+  - id: "bge-m3"
+    params_b: 0.568
+    disk_mb: 1200
+    note: "Best for multilingual + hybrid RAG. Supports dense and sparse retrieval."
+
+  # snowflake-arctic-embed2: 568M params, ~1.1GB disk
+  # Multilingual, Matryoshka, strong on retrieval-specific MTEB.
+  - id: "snowflake-arctic-embed2"
+    params_b: 0.568
+    disk_mb: 1100
+    note: "Multilingual alternative to bge-m3. Strong retrieval benchmark scores."

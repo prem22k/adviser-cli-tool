@@ -25,6 +25,7 @@ from adviser.ingestion.ingest import ingest as run_ingest
 from adviser.llm.client import LLMClient
 from adviser.llm.memory import ConversationMemory
 from adviser.retrieval.retriever import HybridRetriever
+from adviser.hardware import detect
 
 console = Console()
 PROMPT_STYLE = Style.from_dict({"prompt": "bold ansicyan"})
@@ -90,12 +91,13 @@ def digest_command(plan: bool = typer.Option(False, "--plan", "-p", help="Estima
 @app.command("init")
 def init_command() -> None:
     console.print(Panel.fit("Adviser Setup Wizard", border_style="cyan", title="Setup"))
-    hardware = _hardware_summary()
+    hp = detect()
+    gpu_desc = hp.gpu_name if hp.gpu_name else "not detected"
     console.print(
         Panel.fit(
-            f"CPU cores: {hardware['cpu_cores']}\nRAM: {hardware['ram_gb']} GB\nGPU: {hardware['gpu']}",
+            f"CPU cores: {hp.cpu_cores}\nRAM: {hp.ram_gb} GB\nGPU: {gpu_desc}\nHardware Tier: {hp.tier}",
             border_style="cyan",
-            title="Hardware",
+            title="Hardware Profile",
         )
     )
 
