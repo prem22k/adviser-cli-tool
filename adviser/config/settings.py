@@ -98,7 +98,7 @@ def get_provider_chain() -> list[ProviderConfig]:
             ProviderConfig(
                 name="gemini",
                 kind="gemini",
-                model=os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
+                model=os.getenv("GEMINI_MODEL", "gemini-3.5-flash"),
                 api_key=GEMINI_API_KEY,
             )
         )
