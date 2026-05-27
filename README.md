@@ -153,6 +153,9 @@ adviser ingest
 adviser ingest --force
 ```
 
+> [!TIP]
+> **Polished Ingestion UI**: The ingestion process features a highly refined terminal UI. It automatically suppresses noisy HuggingFace weight-loading progress bars and unauthenticated warnings, displaying clean progress bars for `File Scanning`, `Chunking`, and `Embedding` before outputting a single, consolidated statistics panel.
+
 ### 3. Start Chatting (`adviser chat` or `adviser`)
 Starts the interactive chat session, loading memory history buffers and retrieving context on each user query:
 ```bash
