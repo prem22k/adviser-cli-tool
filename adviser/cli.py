@@ -61,15 +61,7 @@ def chat_command(
 @app.command("ingest")
 def ingest_command(force: bool = typer.Option(False, "--force", "-f", help="Rebuild the adviser collection.")) -> None:
     _activate_runtime_profile(None)
-    with console.status("[dim]Working...[/dim]", spinner="dots"):
-        stats = run_ingest(force_reload=force)
-    console.print(
-        Panel.fit(
-            f"Total chunks: {stats['total_chunks']}\nSources: {len(stats['sources'])}",
-            title="Ingestion Complete",
-            border_style="cyan",
-        )
-    )
+    run_ingest(force_reload=force)
 
 
 @app.command("digest")

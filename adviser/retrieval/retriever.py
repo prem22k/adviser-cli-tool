@@ -2,6 +2,18 @@
 
 from __future__ import annotations
 
+import os
+import logging
+
+# Suppress HuggingFace hub unauthenticated warnings and raw tqdm weights-loading progress bars
+os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
+os.environ["HF_HUB_VERBOSITY"] = "error"
+os.environ["TQDM_DISABLE"] = "1"
+os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+
+for logger_name in ["transformers", "sentence_transformers", "chromadb", "huggingface_hub", "urllib3"]:
+    logging.getLogger(logger_name).setLevel(logging.ERROR)
+
 import hashlib
 import json
 from pathlib import Path

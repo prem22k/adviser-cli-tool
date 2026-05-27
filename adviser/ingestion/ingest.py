@@ -2,6 +2,18 @@
 
 from __future__ import annotations
 
+import os
+import logging
+
+# Suppress HuggingFace hub unauthenticated warnings and raw tqdm weights-loading progress bars
+os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
+os.environ["HF_HUB_VERBOSITY"] = "error"
+os.environ["TQDM_DISABLE"] = "1"
+os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+
+for logger_name in ["transformers", "sentence_transformers", "chromadb", "huggingface_hub", "urllib3"]:
+    logging.getLogger(logger_name).setLevel(logging.ERROR)
+
 import hashlib
 import json
 from pathlib import Path
@@ -137,7 +149,7 @@ def ingest(force_reload: bool = False) -> dict[str, object]:
     sources: list[str] = []
 
     with _progress() as progress:
-        task_id = progress.add_task("Chunking Documents", total=len(documents))
+        task_id = progress.add_task("Chunking", total=len(documents))
         for document in documents:
             source = str(document["source"])
             sources.append(source)
@@ -151,7 +163,7 @@ def ingest(force_reload: bool = False) -> dict[str, object]:
     batch_size = 100
     with _progress() as progress:
         task_id = progress.add_task(
-            "Embedding & Vector Storage",
+            "Embedding",
             total=max(1, (len(all_ids) + batch_size - 1) // batch_size),
         )
         for start in range(0, len(all_ids), batch_size):
@@ -168,18 +180,16 @@ def ingest(force_reload: bool = False) -> dict[str, object]:
     stats_path.write_text(json.dumps(stats, indent=2), encoding="utf-8")
     total_indexed_chunks = collection.count()
 
-    console.print("[bold green]✓ Done![/bold green]")
     console.print(
         Panel(
             "\n".join(
                 [
-                    f"• Files loaded: [dim]{len(documents)}[/dim]",
-                    f"• New chunks created: [dim]{len(all_ids)}[/dim]",
-                    f"• Total chunks in index: [dim]{total_indexed_chunks}[/dim]",
+                    f"• Files loaded: [bold green]{len(documents)}[/bold green]",
+                    f"• New chunks created: [bold green]{len(all_ids)}[/bold green]",
                     f"• Database path: [dim]{settings.DB_PATH}[/dim]",
                 ]
             ),
-            title="[bold cyan]Adviser Ingestion Statistics[/bold cyan]",
+            title="[bold cyan]Ingestion Complete[/bold cyan]",
             border_style="cyan",
         )
     )
@@ -196,7 +206,7 @@ def _progress() -> Progress:
     return Progress(
         SpinnerColumn(spinner_name="dots"),
         TextColumn("[bold cyan]{task.description}"),
-        BarColumn(bar_width=40, style="cyan", complete_style="green"),
+        BarColumn(bar_width=40, style="grey30", complete_style="cyan", finished_style="green"),
         TaskProgressColumn(),
         TimeRemainingColumn(),
         console=console,

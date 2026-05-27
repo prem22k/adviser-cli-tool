@@ -31,7 +31,7 @@ class DocumentLoader:
                 logger.warning("Unsupported file type skipped: %s", target)
                 return []
             with self._progress() as progress:
-                task_id = progress.add_task("File Scanning & Loading", total=1)
+                task_id = progress.add_task("File Scanning", total=1)
                 loaded = self._load_single(target)
                 progress.advance(task_id)
             return [loaded] if loaded else []
@@ -47,7 +47,7 @@ class DocumentLoader:
         docs: list[dict[str, Any]] = []
         max_workers = min(8, max(1, len(files)), (os.cpu_count() or 1))
         with self._progress() as progress:
-            task_id = progress.add_task("File Scanning & Loading", total=len(files))
+            task_id = progress.add_task("File Scanning", total=len(files))
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
                 future_map = {executor.submit(self._load_single, file_path): file_path for file_path in files}
                 for future in as_completed(future_map):
@@ -89,7 +89,7 @@ class DocumentLoader:
         return Progress(
             SpinnerColumn(spinner_name="dots"),
             TextColumn("[bold cyan]{task.description}"),
-            BarColumn(bar_width=40, style="cyan", complete_style="green"),
+            BarColumn(bar_width=40, style="grey30", complete_style="cyan", finished_style="green"),
             TaskProgressColumn(),
             TimeRemainingColumn(),
             console=console,
