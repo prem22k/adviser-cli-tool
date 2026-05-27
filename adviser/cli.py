@@ -106,7 +106,7 @@ def init_command() -> None:
     data_path = Prompt.ask("Absolute path to your document folder", default=default_data_path)
     persona = Prompt.ask("Personal instructions", default=settings.ADVISER_PERSONA)
     enable_cloud = Confirm.ask("Enable cloud APIs (Groq/Gemini)?", default=True)
-    enable_ollama = Confirm.ask("Enable Ollama (local)?", default=bool(settings.OLLAMA_MODEL))
+    enable_ollama = Confirm.ask("Enable Ollama (local)?", default=True)
 
     providers: list[str] = []
     if enable_cloud:
@@ -115,6 +115,36 @@ def init_command() -> None:
                 providers.append(provider)
     if enable_ollama:
         providers.append("ollama")
+
+        # Check if Ollama is installed
+        ollama_installed = bool(shutil.which("ollama"))
+        if not ollama_installed:
+            console.print(
+                Panel(
+                    "[yellow]Warning: Ollama CLI is not detected on your system.[/yellow]\n\n"
+                    "To install Ollama for local LLM support:\n"
+                    "• Linux/macOS: [bold cyan]curl -fsSL https://ollama.com/install.sh | sh[/bold cyan]\n"
+                    "• Windows/Other: Visit [bold cyan]https://ollama.com[/bold cyan] to download the installer.",
+                    title="[bold yellow]Ollama Not Found[/bold yellow]",
+                    border_style="yellow"
+                )
+            )
+
+        # Recommend local models based on hardware auto-detection
+        general_models = hp.recommended_llms.get("general", [])
+        if general_models:
+            recommended_model = general_models[-1]
+            console.print(
+                Panel(
+                    f"Based on your [bold cyan]{hp.tier}[/bold cyan] hardware tier, we recommend running:\n"
+                    f"👉 [bold green]ollama pull {recommended_model}[/bold green]\n\n"
+                    f"To use this model with Adviser, configure it in your terminal before running the chat:\n"
+                    f"[bold cyan]export OLLAMA_MODEL={recommended_model}[/bold cyan]\n\n"
+                    f"Other models that fit your memory: {', '.join(general_models[:-1])}",
+                    title="[bold green]Local LLM Recommendation[/bold green]",
+                    border_style="green"
+                )
+            )
 
     db_path = str((Path.home() / ".local" / "share" / "adviser" / name / "chroma_db").expanduser())
     profile = ProfileManager.create(
