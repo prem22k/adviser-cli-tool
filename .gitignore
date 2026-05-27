@@ -3,5 +3,9 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .venv/
+venv/
+*.egg-info/
 dist/
 build/
+data/
+test_corpus/
