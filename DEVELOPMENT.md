@@ -74,4 +74,11 @@
 - feat: implement native Windows PowerShell installer `install.ps1` for 100% cross-platform 1-click installations
 - docs: add Windows PowerShell installation instructions to `README.md`
 
+### 2026-05-28 14:18
+- feat: scaffold high-quality mock test data under `./demo_corpus/` containing three markdown developer files (`architecture_spec.md`, `security_policy.md`, `api_contract.md`)
+- refactor: rename and standardize screenshot assets to (`init.png`, `ingest.png`, `chat_1.png`, `chat_2.png`) inside `./assets/`
+- docs: map standardized screenshots in `README.md` visual walkthrough and add explicit Kaggle Enron email data provenance links
+- release: lock down stable baseline milestone with git tag `v0.1.0-mvp`
+
+
 
