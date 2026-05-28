@@ -65,3 +65,8 @@
 
 ### 2026-05-28 01:35
 - Refine and polish ingestion UI, suppressing progress bar/auth warnings and consolidating summary panels
+
+### 2026-05-28 14:07
+- feat: implement premium zero-infrastructure `install.sh` bash script to automate environment provisioning and setup
+- docs: document 1-Command Express Installer in root `README.md`
+
