@@ -70,3 +70,8 @@
 - feat: implement premium zero-infrastructure `install.sh` bash script to automate environment provisioning and setup
 - docs: document 1-Command Express Installer in root `README.md`
 
+### 2026-05-28 14:09
+- feat: implement native Windows PowerShell installer `install.ps1` for 100% cross-platform 1-click installations
+- docs: add Windows PowerShell installation instructions to `README.md`
+
+

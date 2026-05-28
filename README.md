@@ -104,11 +104,16 @@ This section showcases a live visual walkthrough of our Phase 1 MVP in action, v
 Adviser requires **Python 3.10+** and is designed to install and configure itself automatically in under 60 seconds.
 
 ### The 1-Command Express Installer (Recommended)
-Simply clone the repository and run the express installer script. It automatically builds a localized virtual environment (`./venv`), optimizes dependencies (leveraging `uv` if present for 10x faster installation, with a robust fallback to standard `pip`), and launches the setup wizard instantly:
+Simply clone the repository and run the express installer script matching your operating system. It automatically builds a localized virtual environment (`./venv`), optimizes dependencies (leveraging `uv` if present for 10x faster installation, with a robust fallback to standard `pip`), and launches the setup wizard instantly:
 
-```bash
-git clone https://github.com/prem22k/adviser-cli-tool.git && cd adviser-cli-tool && ./install.sh
-```
+*   **macOS & Linux**:
+    ```bash
+    git clone https://github.com/prem22k/adviser-cli-tool.git && cd adviser-cli-tool && ./install.sh
+    ```
+*   **Windows (PowerShell)**:
+    ```powershell
+    git clone https://github.com/prem22k/adviser-cli-tool.git; cd adviser-cli-tool; powershell -ExecutionPolicy Bypass -File .\install.ps1
+    ```
 
 ---
 
