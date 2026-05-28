@@ -11,3 +11,4 @@ data/
 test_corpus/
 .agents/
 .codex/
+.env
