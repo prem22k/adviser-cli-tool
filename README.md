@@ -76,25 +76,29 @@ adviser-cli-tool/
 This section showcases a live visual walkthrough of our Phase 1 MVP in action, verifying the mathematical and algorithmic correctness of all core layers:
 
 ### Step 1: Intelligent Environment Initialization
-![Intelligent Environment Initialization](./assets/Screenshot_2026-05-28_13-34-44.png)
+![Intelligent Environment Initialization](./assets/init.png)
 > **Explanation**: Executing `adviser init` launches our hardware-aware setup wizard. Rather than acting as a blind API wrapper, the system automatically profiles the local system architecture (detecting 6 CPU cores, 7.4 GB RAM, and the hardware tier), verifies if the Ollama daemon is installed, and mathematically recommends model sizes that can run safely within a strict memory footprint.
 
 ---
 
 ### Step 2: Local Vector Ingestion & Chunking
-![Local Vector Ingestion & Chunking](./assets/Screenshot_2026-05-28_13-37-48.png)
-> **Explanation**: Showcases the high-performance execution of `adviser ingest` on 50 highly complex, confidential corporate crisis emails from the Enron Email Corpus. The loader reads files concurrently, strips markdown frontmatter, applies the paragraph-aware chunk splitter, embeds the text using `BAAI/bge-small-en-v1.5`, and writes exactly 750 vector chunks to the persistent ChromaDB database—rendered in a consolidated, noise-free Rich progress UI.
+![Local Vector Ingestion & Chunking](./assets/ingest.png)
+> **Explanation**: Showcases the high-performance execution of `adviser ingest` on 50 highly complex, confidential corporate crisis emails.
+>
+> **Data Provenance**: The test document corpus is sourced directly from the official [Kaggle Enron Email Dataset](https://www.kaggle.com/datasets/wcukierski/enron-email-dataset) benchmark corpus containing over 500,000 documents. The live walkthrough targets exactly 50 highly confidential crisis emails extracted from this massive corpus to verify the precision and latency of our hybrid dense-sparse vector ranking pipelines under complex multi-document corporate environments.
+>
+> The loader reads files concurrently, strips markdown frontmatter, applies the paragraph-aware chunk splitter, embeds the text using `BAAI/bge-small-en-v1.5`, and writes exactly 750 vector chunks to the persistent ChromaDB database—rendered in a consolidated, noise-free Rich progress UI.
 
 ---
 
 ### Step 3: Direct Knowledge Retrieval & Financial Analysis
-![Direct Knowledge Retrieval & Financial Analysis](./assets/Screenshot_2026-05-28_13-43-28.png)
+![Direct Knowledge Retrieval & Financial Analysis](./assets/chat_1.png)
 > **Explanation**: Showcases the interactive `adviser chat` performing granular semantic extractions from the ingested corpus. In this run, the hybrid dense-sparse retriever effortlessly extracts portfolio restructuring strategies (including the QQQ tax-loss token roll) and tracks market analyst upgrades and downgrades directly from internal corporate records, bypassing public wrappers.
 
 ---
 
 ### Step 4: Enterprise RAG Capabilities & Structural Analysis
-![Enterprise RAG Capabilities & Structural Analysis](./assets/Screenshot_2026-05-28_13-43-55.png)
+![Enterprise RAG Capabilities & Structural Analysis](./assets/chat_2.png)
 > **Explanation**: Our heavy-hitting multi-document synthesis in action. The tool navigates deep, multi-threaded corporate exchanges to formulate a concise 5-point analysis of structural and bankruptcy risks during energy volatility crises. It prints the exact local persistent chunk locations directly in the shell for immediate code audibility.
 
 ---
