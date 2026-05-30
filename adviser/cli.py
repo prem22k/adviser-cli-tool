@@ -455,6 +455,7 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
         f"   [bold cyan]▀▀▀[/bold cyan]        [dim]{cwd_str}[/dim]\n"
     )
     console.print(logo)
+    console.print("─" * console.width, style="dim")
 
     import sys
     
@@ -467,10 +468,7 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
         return HTML(f"<style fg='ansigray'>{separator}</style>\n{left}{' ' * padding}{right}")
 
     while True:
-        # 1. Print top separator line matching terminal width
-        console.print("─" * console.width, style="dim")
-        
-        # 2. Get user prompt session input using the persistent bottom toolbar
+        # Get user prompt session input using the persistent bottom toolbar
         try:
             query = session.prompt(
                 HTML("<prompt>&gt; </prompt>"),
@@ -481,19 +479,18 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
             break
             
         if not query.strip():
-            # Clear the top separator line to prevent empty line duplicates on empty enters
+            # Clear the active single input line to prevent duplicate empty prompts
             sys.stdout.write("\033[A\033[2K")
             sys.stdout.flush()
             continue
             
         # 3. Clean up active prompt lines to preserve clean scrollback history
-        # Move up 2 lines (prompt input line and top separator line) and clear them
-        sys.stdout.write("\033[A\033[2K\033[A\033[2K")
+        # Move up 1 line (prompt input line) and clear it
+        sys.stdout.write("\033[A\033[2K")
         sys.stdout.flush()
         
         # Print clean, high-fidelity prompt line in conversation history
-        # featuring top separator line, > prefix, bold royal_blue coloring, and clean blank spacing
-        console.print("─" * console.width, style="dim")
+        # featuring > prefix, bold royal_blue coloring, and clean blank spacing
         console.print(f"[bold royal_blue]> {query.strip()}[/bold royal_blue]")
         console.print()
         
@@ -508,9 +505,11 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
             elif cmd in {"/clear", "/c"}:
                 memory.clear()
                 console.print("[cyan]Conversation memory cleared.[/cyan]")
+                console.print("─" * console.width, style="dim")
                 continue
             elif cmd in {"/sources", "/s"}:
                 _print_sources(stats.get("sources", []))
+                console.print("─" * console.width, style="dim")
                 continue
             elif cmd in {"/help", "?", "/h"}:
                 console.print("\n[bold cyan]=== Adviser CLI Slash Commands ===[/bold cyan]")
@@ -518,9 +517,11 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
                 console.print("  [bold cyan]/c[/bold cyan], [bold cyan]/clear[/bold cyan]            Clear the conversational memory window")
                 console.print("  [bold cyan]/s[/bold cyan], [bold cyan]/sources[/bold cyan]          List all indexed local source files")
                 console.print("  [bold cyan]/h[/bold cyan], [bold cyan]/help[/bold cyan], [bold cyan]?[/bold cyan]             Show this command reference guide\n")
+                console.print("─" * console.width, style="dim")
                 continue
             else:
                 console.print(f"[yellow]Unknown command: {cmd}. Type /help or ? for shortcuts.[/yellow]")
+                console.print("─" * console.width, style="dim")
                 continue
 
         # Transparently support legacy non-slash commands
@@ -530,10 +531,12 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
         if command == "clear":
             memory.clear()
             console.print("[cyan]Conversation memory cleared. Tip: Use slash command /clear or /c[/cyan]")
+            console.print("─" * console.width, style="dim")
             continue
         if command == "sources":
             _print_sources(stats.get("sources", []))
             console.print("[dim]Tip: Use slash command /sources or /s[/dim]")
+            console.print("─" * console.width, style="dim")
             continue
 
         # 6. Search database and execute local RAG generation loop
@@ -543,6 +546,7 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
         context = retriever.format_context(hits, max_chars=settings.MAX_CONTEXT_TOKENS * 2)
         messages = memory.get_messages(settings.ADVISER_PERSONA, query, context)
         answer = client.chat(messages)
+        console.print("─" * console.width, style="dim")
         memory.add("user", query)
         memory.add("assistant", answer)
 

@@ -40,13 +40,28 @@ class LLMClient:
                 temperature=0.2,
                 stream=True,
             )
+            
+            from rich.console import Group
+            from rich.live import Live
+            from rich.markdown import Markdown
+            from rich.spinner import Spinner
+            from rich.text import Text
+
             chunks: list[str] = []
-            for part in stream:
-                token = part.choices[0].delta.content or ""
-                if token:
-                    console.print(token, end="")
-                    chunks.append(token)
-            console.print()
+            # Latency spinner anchored to a layout container using the dot animation and elegant ellipses
+            spinner = Spinner("dots", text=Text(" • • •", style="dim"), style="dim")
+            
+            with Live(spinner, console=console, auto_refresh=False) as live:
+                first = True
+                for part in stream:
+                    token = part.choices[0].delta.content or ""
+                    if token:
+                        if first:
+                            first = False
+                        chunks.append(token)
+                        accumulated = "".join(chunks)
+                        live.update(Group(Markdown(accumulated)), refresh=True)
+                        
             return "".join(chunks)
         except (RateLimitError, APIConnectionError, APITimeoutError):
             raise
@@ -99,15 +114,34 @@ class LLMClient:
         model = genai.GenerativeModel(model_name=provider.model)
         history, prompt = self._to_gemini_chat(messages)
         chat = model.start_chat(history=history)
-        response = chat.send_message(prompt, stream=True)
-        chunks: list[str] = []
-        for chunk in response:
-            token = getattr(chunk, "text", "") or ""
-            if token:
-                console.print(token, end="")
-                chunks.append(token)
-        console.print()
-        return "".join(chunks)
+        
+        try:
+            response = chat.send_message(prompt, stream=True)
+            
+            from rich.console import Group
+            from rich.live import Live
+            from rich.markdown import Markdown
+            from rich.spinner import Spinner
+            from rich.text import Text
+
+            chunks: list[str] = []
+            # Latency spinner anchored to a layout container using the dot animation and elegant ellipses
+            spinner = Spinner("dots", text=Text(" • • •", style="dim"), style="dim")
+            
+            with Live(spinner, console=console, auto_refresh=False) as live:
+                first = True
+                for chunk in response:
+                    token = getattr(chunk, "text", "") or ""
+                    if token:
+                        if first:
+                            first = False
+                        chunks.append(token)
+                        accumulated = "".join(chunks)
+                        live.update(Group(Markdown(accumulated)), refresh=True)
+                        
+            return "".join(chunks)
+        except Exception:
+            raise
 
     def chat(self, messages: list[dict[str, str]]) -> str:
         try:
