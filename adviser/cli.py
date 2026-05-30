@@ -154,28 +154,42 @@ def mcp_install_command(
         cline_paths.append(Path.home() / ".config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json")
     config_options["5"] = (cline_paths, "Cline (VS Code Extension)")
 
-    # Prompt user interactively
-    from rich.prompt import Prompt
-    console.print("\n[bold cyan]=== Adviser MCP Auto-Installer ===[/bold cyan]")
-    console.print("Select which IDE(s) or Client(s) to configure for Adviser MCP:")
-    console.print("  [bold cyan]1[/bold cyan]) Cursor (Global)")
-    console.print("  [bold cyan]2[/bold cyan]) Cursor (Project-Local)")
-    console.print("  [bold cyan]3[/bold cyan]) Claude Desktop")
-    console.print("  [bold cyan]4[/bold cyan]) Windsurf (Global)")
-    console.print("  [bold cyan]5[/bold cyan]) Cline (VS Code Extension)")
-    console.print("  [bold cyan]6[/bold cyan]) [bold green]All of the above[/bold green]")
-    
-    choice = Prompt.ask("\nEnter your choices (e.g. '1', '1,3,5', or '6' for all)", default="6")
-    
+    # Prompt user interactively using modern arrow-key TUI dialog if in interactive terminal
     selected_options = []
-    if choice.strip() == "6":
-        selected_options = ["1", "2", "3", "4", "5"]
+    if sys.stdin.isatty():
+        from prompt_toolkit.shortcuts import checkboxlist_dialog
+        
+        selected_options = checkboxlist_dialog(
+            title="Adviser MCP Auto-Installer",
+            text=(
+                "Use ARROW KEYS to navigate options.\n"
+                "Press SPACE to select/deselect an IDE.\n"
+                "Press TAB to switch focus to OK/Cancel buttons.\n"
+                "Press ENTER to submit.\n\n"
+                "Which IDEs/Clients do you want to configure Adviser MCP for?"
+            ),
+            values=[
+                ("1", "Cursor (Global)"),
+                ("2", "Cursor (Project-Local)"),
+                ("3", "Claude Desktop"),
+                ("4", "Windsurf (Global)"),
+                ("5", "Cline (VS Code Extension)"),
+                ("6", "All of the above")
+            ]
+        ).run()
+        
+        if not selected_options:
+            console.print("[yellow]Installation cancelled by user.[/yellow]")
+            return
+            
+        if "6" in selected_options:
+            selected_options = ["1", "2", "3", "4", "5"]
     else:
-        # Parse comma separated list
-        selected_options = [c.strip() for c in choice.split(",") if c.strip() in config_options]
+        # Fallback for piped / non-interactive automated installs - configure all by default
+        selected_options = ["1", "2", "3", "4", "5"]
 
     if not selected_options:
-        console.print("[yellow]No valid options selected. Exiting.[/yellow]")
+        console.print("[yellow]No IDEs selected. Exiting.[/yellow]")
         return
 
     ide_configured = False
