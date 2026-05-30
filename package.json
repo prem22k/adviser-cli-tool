@@ -4,7 +4,7 @@
   "description": "Terminal-native privacy-first local RAG assistant and IDE MCP server.",
   "main": "bin/cli.js",
   "bin": {
-    "adviser": "./bin/cli.js"
+    "adviser": "bin/cli.js"
   },
   "scripts": {
     "postinstall": "node ./scripts/install-python.js"
