@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import sys
 from pathlib import Path
 
 import typer
@@ -34,6 +35,8 @@ PROMPT_STYLE = Style.from_dict({
     "prefix": "bold cyan",
     "text": "white",
     "auto-suggest": "dim ansigray",
+    "status-bar": "ansigray",
+    "status-provider": "ansigray",
 })
 
 app = typer.Typer(help="Adviser CLI", invoke_without_command=True, no_args_is_help=False)
@@ -441,6 +444,28 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
         style=PROMPT_STYLE,
         auto_suggest=AutoSuggestFromHistory(),
     )
+    
+    # Redesign prompt layout for inline status bar
+    from prompt_toolkit.layout.containers import Window
+    from prompt_toolkit.layout.controls import FormattedTextControl
+    
+    def _status_bar_text() -> list[tuple[str, str]]:
+        left = "? for shortcuts | /exit to quit | /clear to reset"
+        right = f"{client.primary_provider_name}"
+        width = console.width
+        padding = max(1, width - len(left) - len(right) - 1)
+        return [
+            ("class:status-bar", left),
+            ("", " " * padding),
+            ("class:status-provider", right),
+        ]
+        
+    spacer = Window(height=1)
+    status_control = FormattedTextControl(_status_bar_text)
+    status_window = Window(content=status_control, height=1)
+    
+    session.layout.container.children.append(spacer)
+    session.layout.container.children.append(status_window)
 
     # Get active user and home-contracted paths to match premium pop-os terminal design
     import getpass
@@ -466,25 +491,14 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
     console.print(logo)
     console.print("─" * console.width, style="dim")
 
-    import sys
-    
-    def _bottom_toolbar() -> HTML:
-        separator = "─" * console.width
-        left = "? for shortcuts | /exit to quit | /clear to reset"
-        right = f"{client.primary_provider_name}"
-        # Pad to align right nicely
-        padding = max(1, console.width - len(left) - len(right) - 2)
-        return HTML(f"<style fg='ansigray'>{separator}</style>\n{left}{' ' * padding}{right}")
-
     while True:
         # Print a vertical spacer line to visually isolate the input interaction space
         console.print()
         
-        # Get user prompt session input using the persistent bottom toolbar
+        # Get user prompt session input
         try:
             query = session.prompt(
-                [('class:prefix', '> '), ('class:prompt', 'User ❯ ')],
-                bottom_toolbar=_bottom_toolbar
+                [('class:prefix', '> '), ('class:prompt', 'User ❯ ')]
             )
         except (KeyboardInterrupt, EOFError):
             break
