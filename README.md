@@ -63,7 +63,7 @@ adviser-cli-tool/
 
 ### Technical Stack Breakdown
 
-*   **Core AI Engine & Code Intelligence**: Powered by **OpenAI Codex** and advanced models to provide high-fidelity code understanding, structured retrieval, and rapid, deterministic build routing across local or cloud pipelines.
+*   **Core AI Engine & Context Synthesis**: Powered by frontier reasoning models (including Google Gemini and Llama-3-70B on Groq) combined with persistent ChromaDB dense-sparse RAG search to deliver fast, highly accurate, and secure document context analysis.
 *   **CLI & Rich Terminal Rendering**: Powered by **Python + Typer + Rich**, presenting a stunning, highly responsive terminal UI with micro-animations, clean progress bars, and beautifully framed panels.
 *   **Local Persistent Vector Store**: Driven by a local **Persistent ChromaDB** client running semantic embeddings (`BAAI/bge-small-en-v1.5`) alongside classical keyword search (**Rank-BM25Okapi**).
 *   **Hybrid Reciprocal Rank Fusion (RRF)**: Algebraically fuses dense vector distances and sparse keyword BM25 ranks using customizable weights (`BM25_WEIGHT` vs `VECTOR_WEIGHT`) for elite context relevance.
@@ -229,6 +229,14 @@ We have fully implemented, tested, and delivered the Phase 2 systems roadmap:
 4. **NPM Package Packaging**: Exposes `adviser` as a global Node-wrapped command, seamlessly bridging the Python ML backend with Node-centric IDE ecosystems.
 5. **Claude-Style Hyper-Smooth Token Streaming**: Integrates a dedicated `rich.live.Live` manager and isolated layout `Group` container for flicker-free incremental markdown rendering, paired with a dynamic dots spinner (`• • •`) during cloud API latency.
 6. **Styled Interactive Prompt Interface**: Upgrades the prompt session with advanced `prompt_toolkit` stylesheets (`royalblue` prompt, `cyan` prefix, `white` typed text, and `dim ansigray` auto-suggest), inline command history auto-suggestions (completed via Right Arrow), and visual spacer isolation that scrolls fluidly.
+
+---
+
+## 🛠️ Development & Engineering Credits
+
+This project was engineered, developed, and stabilized through high-performance pair-programming leveraging:
+*   **OpenAI Codex**: Used for initial prototyping, structural layout mapping, and quick code generation cycles.
+*   **Antigravity (Google DeepMind)**: Used for Phase 2 systems auditing, advanced prompt-toolkit TUI refactoring, Model Context Protocol integration, and deployment stabilization.
 
 ---
 
