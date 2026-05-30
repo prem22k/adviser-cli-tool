@@ -110,50 +110,102 @@ def mcp_install_command(
         if val:
             mcp_config["env"][key] = val
             
-    # Configure Cursor & Windsurf
-    ide_configured = False
+    # Configure Cursor, Claude Desktop, Windsurf & Cline
     system = sys.platform
-    config_mappings = []
-    
-    # 1. Cursor Global standard configuration path (May 2026 spec)
-    config_mappings.append((Path.home() / ".cursor/mcp.json", "Cursor (Global)"))
-    
-    # 2. Cursor Project-Local configuration path
-    config_mappings.append((Path(".cursor/mcp.json"), "Cursor (Project-Local)"))
-    
-    # 3. Cursor Legacy globalStorage configuration paths
+    config_options = {}
+
+    # 1. Cursor Global
+    cursor_global_paths = [Path.home() / ".cursor/mcp.json"]
     if system == "darwin":
-        config_mappings.append((Path.home() / "Library/Application Support/Cursor/User/globalStorage/cursor.chat.mcp/config.json", "Cursor (Legacy globalStorage)"))
+        cursor_global_paths.append(Path.home() / "Library/Application Support/Cursor/User/globalStorage/cursor.chat.mcp/config.json")
     elif system == "win32":
         if os.getenv("APPDATA"):
-            config_mappings.append((Path(os.getenv("APPDATA")) / "Cursor/User/globalStorage/cursor.chat.mcp/config.json", "Cursor (Legacy globalStorage)"))
-    else:  # Linux
-        config_mappings.append((Path.home() / ".config/Cursor/User/globalStorage/cursor.chat.mcp/config.json", "Cursor (Legacy globalStorage)"))
-        config_mappings.append((Path.home() / ".config/cursor/User/globalStorage/cursor.chat.mcp/config.json", "Cursor (Legacy globalStorage)"))
-        
-    # 4. Windsurf Global standard configuration path
-    config_mappings.append((Path.home() / ".codeium/windsurf/mcp_config.json", "Windsurf (Global)"))
-        
-    for target_path, label in config_mappings:
-        try:
-            target_path.parent.mkdir(parents=True, exist_ok=True)
-            data = {"mcpServers": {}}
-            if target_path.exists():
-                try:
-                    data = json.loads(target_path.read_text(encoding="utf-8"))
-                except Exception:
-                    pass
-            
-            if "mcpServers" not in data:
-                data["mcpServers"] = {}
+            cursor_global_paths.append(Path(os.getenv("APPDATA")) / "Cursor/User/globalStorage/cursor.chat.mcp/config.json")
+    else:
+        cursor_global_paths.append(Path.home() / ".config/Cursor/User/globalStorage/cursor.chat.mcp/config.json")
+        cursor_global_paths.append(Path.home() / ".config/cursor/User/globalStorage/cursor.chat.mcp/config.json")
+    config_options["1"] = (cursor_global_paths, "Cursor (Global)")
+
+    # 2. Cursor Project-Local
+    config_options["2"] = ([Path(".cursor/mcp.json")], "Cursor (Project-Local)")
+
+    # 3. Claude Desktop
+    claude_paths = []
+    if system == "darwin":
+        claude_paths.append(Path.home() / "Library/Application Support/Claude/claude_desktop_config.json")
+    elif system == "win32":
+        if os.getenv("APPDATA"):
+            claude_paths.append(Path(os.getenv("APPDATA")) / "Claude/claude_desktop_config.json")
+    else:
+        claude_paths.append(Path.home() / ".config/Claude/claude_desktop_config.json")
+    config_options["3"] = (claude_paths, "Claude Desktop")
+
+    # 4. Windsurf Global
+    config_options["4"] = ([Path.home() / ".codeium/windsurf/mcp_config.json"], "Windsurf (Global)")
+
+    # 5. Cline (VS Code Extension)
+    cline_paths = []
+    if system == "darwin":
+        cline_paths.append(Path.home() / "Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json")
+    elif system == "win32":
+        if os.getenv("APPDATA"):
+            cline_paths.append(Path(os.getenv("APPDATA")) / "Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json")
+    else:
+        cline_paths.append(Path.home() / ".config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json")
+    config_options["5"] = (cline_paths, "Cline (VS Code Extension)")
+
+    # Prompt user interactively
+    from rich.prompt import Prompt
+    console.print("\n[bold cyan]=== Adviser MCP Auto-Installer ===[/bold cyan]")
+    console.print("Select which IDE(s) or Client(s) to configure for Adviser MCP:")
+    console.print("  [bold cyan]1[/bold cyan]) Cursor (Global)")
+    console.print("  [bold cyan]2[/bold cyan]) Cursor (Project-Local)")
+    console.print("  [bold cyan]3[/bold cyan]) Claude Desktop")
+    console.print("  [bold cyan]4[/bold cyan]) Windsurf (Global)")
+    console.print("  [bold cyan]5[/bold cyan]) Cline (VS Code Extension)")
+    console.print("  [bold cyan]6[/bold cyan]) [bold green]All of the above[/bold green]")
+    
+    choice = Prompt.ask("\nEnter your choices (e.g. '1', '1,3,5', or '6' for all)", default="6")
+    
+    selected_options = []
+    if choice.strip() == "6":
+        selected_options = ["1", "2", "3", "4", "5"]
+    else:
+        # Parse comma separated list
+        selected_options = [c.strip() for c in choice.split(",") if c.strip() in config_options]
+
+    if not selected_options:
+        console.print("[yellow]No valid options selected. Exiting.[/yellow]")
+        return
+
+    ide_configured = False
+    for opt in selected_options:
+        paths, label = config_options[opt]
+        for target_path in paths:
+            try:
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+                data = {"mcpServers": {}}
+                if target_path.exists():
+                    try:
+                        data = json.loads(target_path.read_text(encoding="utf-8"))
+                    except Exception:
+                        pass
                 
-            data["mcpServers"]["adviser-mcp"] = mcp_config
-            target_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
-            console.print(f"[green]✓ Successfully registered with {label} at:[/green] [dim]{target_path}[/dim]")
-            ide_configured = True
-        except Exception as exc:
-            # We don't want to print failures for locations that don't apply or don't exist
-            pass
+                if "mcpServers" not in data:
+                    data["mcpServers"] = {}
+                
+                # Apply Cline parameters if needed
+                mcp_server_entry = dict(mcp_config)
+                if label == "Cline (VS Code Extension)":
+                    mcp_server_entry["disabled"] = False
+                    mcp_server_entry["autoApprove"] = []
+                    
+                data["mcpServers"]["adviser-mcp"] = mcp_server_entry
+                target_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+                console.print(f"[green]✓ Successfully registered with {label} at:[/green] [dim]{target_path}[/dim]")
+                ide_configured = True
+            except Exception as exc:
+                console.print(f"[red]✖ Failed to configure {label} at {target_path}:[/red] {exc}")
 
     # Output Claude Code instructions
     console.print("\n[bold cyan]=== Claude Code MCP Integration ===[/bold cyan]")
@@ -162,9 +214,9 @@ def mcp_install_command(
     console.print(f"\n  [bold green]{claude_cmd}[/bold green]\n")
     
     if ide_configured:
-        console.print("[bold green]✔ MCP Server configured successfully for your local IDEs![/bold green]")
+        console.print("[bold green]✔ MCP Server configured successfully for selected IDEs![/bold green]")
     else:
-        console.print("[yellow]Automatic IDE configuration skipped. Please add the server manually in Cursor/Windsurf settings.[/yellow]")
+        console.print("[yellow]Automatic IDE configuration skipped. Please add the server manually in your settings.[/yellow]")
 
 
 @app.command("digest")
