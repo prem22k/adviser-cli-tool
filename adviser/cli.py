@@ -456,29 +456,45 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
     )
     console.print(logo)
 
+    import sys
+    
+    def _bottom_toolbar() -> HTML:
+        separator = "─" * console.width
+        left = "? for shortcuts | /exit to quit | /clear to reset"
+        right = f"{client.primary_provider_name}"
+        # Pad to align right nicely
+        padding = max(1, console.width - len(left) - len(right) - 2)
+        return HTML(f"<style fg='ansigray'>{separator}</style>\n{left}{' ' * padding}{right}")
+
     while True:
         # 1. Print top separator line matching terminal width
         console.print("─" * console.width, style="dim")
         
-        # 2. Get user prompt session input
+        # 2. Get user prompt session input using the persistent bottom toolbar
         try:
-            query = session.prompt(HTML("<prompt>&gt; </prompt>"), style=PROMPT_STYLE)
+            query = session.prompt(
+                HTML("<prompt>&gt; </prompt>"),
+                style=PROMPT_STYLE,
+                bottom_toolbar=_bottom_toolbar
+            )
         except (KeyboardInterrupt, EOFError):
             break
             
         if not query.strip():
+            # Clear the top separator line to prevent empty line duplicates on empty enters
+            sys.stdout.write("\033[A\033[2K")
+            sys.stdout.flush()
             continue
             
-        # 3. Print bottom separator line
-        console.print("─" * console.width, style="dim")
+        # 3. Clean up active prompt lines to preserve clean scrollback history
+        # Move up 2 lines (prompt input line and top separator line) and clear them
+        sys.stdout.write("\033[A\033[2K\033[A\033[2K")
+        sys.stdout.flush()
         
-        # 4. Print bottom status bar metadata aligned to edges
-        left_text = "? for shortcuts | /exit to quit | /clear to reset"
-        right_text = f"{client.primary_provider_name}"
-        padding = max(1, console.width - len(left_text) - len(right_text))
-        console.print(f"[dim]{left_text}[/dim]" + " " * padding + f"[dim]{right_text}[/dim]\n")
+        # Print clean, high-fidelity prompt line in conversation history
+        console.print(f"[bold cyan]User ❯[/bold cyan] {query.strip()}")
         
-        # 5. Parse slash commands
+        # 4. Parse slash commands
         query_strip = query.strip()
         if query_strip.startswith("/") or query_strip == "?":
             cmd_parts = query_strip.split()
