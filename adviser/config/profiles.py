@@ -25,6 +25,13 @@ class Profile:
     providers: list[str] = field(default_factory=list)
     gemini_model: str = "gemini-3.5-flash"
     groq_model: str = "llama-3.3-70b-versatile"
+    openai_model: str = "gpt-5.4-mini"
+    anthropic_model: str = "claude-3-5-sonnet-20241022"
+    deepseek_model: str = "deepseek-chat"
+    mistral_model: str = "codestral-latest"
+    openrouter_model: str = "meta-llama/llama-3.3-70b-instruct"
+    together_model: str = "meta-llama/Llama-3.3-70b-instruct-turbo"
+    fireworks_model: str = "accounts/fireworks/models/llama-v3-70b-instruct"
 
     def save(self) -> Path:
         PROFILES_DIR.mkdir(parents=True, exist_ok=True)
@@ -44,6 +51,13 @@ class ProfileManager:
         providers: list[str],
         gemini_model: str = "gemini-3.5-flash",
         groq_model: str = "llama-3.3-70b-versatile",
+        openai_model: str = "gpt-5.4-mini",
+        anthropic_model: str = "claude-3-5-sonnet-20241022",
+        deepseek_model: str = "deepseek-chat",
+        mistral_model: str = "codestral-latest",
+        openrouter_model: str = "meta-llama/llama-3.3-70b-instruct",
+        together_model: str = "meta-llama/Llama-3.3-70b-instruct-turbo",
+        fireworks_model: str = "accounts/fireworks/models/llama-v3-70b-instruct",
     ) -> Profile:
         profile = Profile(
             name=name,
@@ -53,6 +67,13 @@ class ProfileManager:
             providers=providers,
             gemini_model=gemini_model,
             groq_model=groq_model,
+            openai_model=openai_model,
+            anthropic_model=anthropic_model,
+            deepseek_model=deepseek_model,
+            mistral_model=mistral_model,
+            openrouter_model=openrouter_model,
+            together_model=together_model,
+            fireworks_model=fireworks_model,
         )
         profile.save()
         return profile

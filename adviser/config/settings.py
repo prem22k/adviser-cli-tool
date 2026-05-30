@@ -27,6 +27,33 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash").strip()
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile").strip()
 
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.4-mini").strip()
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1").strip()
+
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
+ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-3-5-sonnet-20241022").strip()
+
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "").strip()
+DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat").strip()
+DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1").strip()
+
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "").strip()
+MISTRAL_MODEL = os.getenv("MISTRAL_MODEL", "codestral-latest").strip()
+MISTRAL_BASE_URL = os.getenv("MISTRAL_BASE_URL", "https://api.mistral.ai/v1").strip()
+
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-3.3-70b-instruct").strip()
+OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1").strip()
+
+TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY", "").strip()
+TOGETHER_MODEL = os.getenv("TOGETHER_MODEL", "meta-llama/Llama-3.3-70b-instruct-turbo").strip()
+TOGETHER_BASE_URL = os.getenv("TOGETHER_BASE_URL", "https://api.together.xyz/v1").strip()
+
+FIREWORKS_API_KEY = os.getenv("FIREWORKS_API_KEY", "").strip()
+FIREWORKS_MODEL = os.getenv("FIREWORKS_MODEL", "accounts/fireworks/models/llama-v3-70b-instruct").strip()
+FIREWORKS_BASE_URL = os.getenv("FIREWORKS_BASE_URL", "https://api.fireworks.ai/inference/v1").strip()
+
 DATA_PATH = Path(os.getenv("DATA_PATH", "./data/corpus.txt")).expanduser()
 DB_PATH = Path(os.getenv("DB_PATH", "./data/chroma_db")).expanduser()
 
@@ -71,8 +98,21 @@ def _enforce_https(url: str) -> str:
 
 
 def validate() -> None:
-    if not (GROQ_API_KEY or GEMINI_API_KEY):
-        raise RuntimeError("No API keys configured. Set GROQ_API_KEY or GEMINI_API_KEY.")
+    has_keys = any([
+        GROQ_API_KEY,
+        GEMINI_API_KEY,
+        OPENAI_API_KEY,
+        ANTHROPIC_API_KEY,
+        DEEPSEEK_API_KEY,
+        MISTRAL_API_KEY,
+        OPENROUTER_API_KEY,
+        TOGETHER_API_KEY,
+        FIREWORKS_API_KEY,
+        OLLAMA_MODEL,
+        AIRLLM_MODEL,
+    ])
+    if not has_keys:
+        raise RuntimeError("No API keys or local models configured. Set at least one API key or local model.")
     if not DATA_PATH.exists():
         raise FileNotFoundError(f"Configured DATA_PATH does not exist: {DATA_PATH}")
 
@@ -86,6 +126,13 @@ def apply_profile(profile: Any) -> None:
     global TOP_K_RETRIEVE
     global GEMINI_MODEL
     global GROQ_MODEL
+    global OPENAI_MODEL
+    global ANTHROPIC_MODEL
+    global DEEPSEEK_MODEL
+    global MISTRAL_MODEL
+    global OPENROUTER_MODEL
+    global TOGETHER_MODEL
+    global FIREWORKS_MODEL
 
     ADVISER_PERSONA = profile.persona
     DATA_PATH = Path(profile.data_path).expanduser()
@@ -98,6 +145,20 @@ def apply_profile(profile: Any) -> None:
         GEMINI_MODEL = profile.gemini_model
     if hasattr(profile, "groq_model"):
         GROQ_MODEL = profile.groq_model
+    if hasattr(profile, "openai_model"):
+        OPENAI_MODEL = profile.openai_model
+    if hasattr(profile, "anthropic_model"):
+        ANTHROPIC_MODEL = profile.anthropic_model
+    if hasattr(profile, "deepseek_model"):
+        DEEPSEEK_MODEL = profile.deepseek_model
+    if hasattr(profile, "mistral_model"):
+        MISTRAL_MODEL = profile.mistral_model
+    if hasattr(profile, "openrouter_model"):
+        OPENROUTER_MODEL = profile.openrouter_model
+    if hasattr(profile, "together_model"):
+        TOGETHER_MODEL = profile.together_model
+    if hasattr(profile, "fireworks_model"):
+        FIREWORKS_MODEL = profile.fireworks_model
 
 
 def get_provider_chain() -> list[ProviderConfig]:
@@ -111,6 +172,25 @@ def get_provider_chain() -> list[ProviderConfig]:
                 api_key=GEMINI_API_KEY,
             )
         )
+    if ANTHROPIC_API_KEY:
+        providers.append(
+            ProviderConfig(
+                name="anthropic",
+                kind="anthropic",
+                model=ANTHROPIC_MODEL,
+                api_key=ANTHROPIC_API_KEY,
+            )
+        )
+    if OPENAI_API_KEY:
+        providers.append(
+            ProviderConfig(
+                name="openai",
+                kind="openai-compatible",
+                model=OPENAI_MODEL,
+                api_key=OPENAI_API_KEY,
+                base_url=_enforce_https(OPENAI_BASE_URL),
+            )
+        )
     if GROQ_API_KEY:
         providers.append(
             ProviderConfig(
@@ -119,6 +199,56 @@ def get_provider_chain() -> list[ProviderConfig]:
                 model=GROQ_MODEL,
                 api_key=GROQ_API_KEY,
                 base_url=_enforce_https(os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")),
+            )
+        )
+    if DEEPSEEK_API_KEY:
+        providers.append(
+            ProviderConfig(
+                name="deepseek",
+                kind="openai-compatible",
+                model=DEEPSEEK_MODEL,
+                api_key=DEEPSEEK_API_KEY,
+                base_url=_enforce_https(DEEPSEEK_BASE_URL),
+            )
+        )
+    if MISTRAL_API_KEY:
+        providers.append(
+            ProviderConfig(
+                name="mistral",
+                kind="openai-compatible",
+                model=MISTRAL_MODEL,
+                api_key=MISTRAL_API_KEY,
+                base_url=_enforce_https(MISTRAL_BASE_URL),
+            )
+        )
+    if OPENROUTER_API_KEY:
+        providers.append(
+            ProviderConfig(
+                name="openrouter",
+                kind="openai-compatible",
+                model=OPENROUTER_MODEL,
+                api_key=OPENROUTER_API_KEY,
+                base_url=_enforce_https(OPENROUTER_BASE_URL),
+            )
+        )
+    if TOGETHER_API_KEY:
+        providers.append(
+            ProviderConfig(
+                name="together",
+                kind="openai-compatible",
+                model=TOGETHER_MODEL,
+                api_key=TOGETHER_API_KEY,
+                base_url=_enforce_https(TOGETHER_BASE_URL),
+            )
+        )
+    if FIREWORKS_API_KEY:
+        providers.append(
+            ProviderConfig(
+                name="fireworks",
+                kind="openai-compatible",
+                model=FIREWORKS_MODEL,
+                api_key=FIREWORKS_API_KEY,
+                base_url=_enforce_https(FIREWORKS_BASE_URL),
             )
         )
     if OLLAMA_MODEL:

@@ -63,11 +63,11 @@ adviser-cli-tool/
 
 ### Technical Stack Breakdown
 
-*   **Core AI Engine & Context Synthesis**: Powered by frontier reasoning models (including Google Gemini and Llama-3-70B on Groq) combined with persistent ChromaDB dense-sparse RAG search to deliver fast, highly accurate, and secure document context analysis.
+*   **Core AI Engine & Context Synthesis**: Powered by frontier and open-weight reasoning models (including Anthropic Claude 3.5 Sonnet, OpenAI GPT-5.4-mini, DeepSeek V3.2, Mistral AI, Gemini, and Groq/Llama-3.3) combined with persistent ChromaDB dense-sparse RAG search to deliver fast, highly accurate, and secure document context analysis.
 *   **CLI & Rich Terminal Rendering**: Powered by **Python + Typer + Rich**, presenting a stunning, highly responsive terminal UI with micro-animations, clean progress bars, and beautifully framed panels.
 *   **Local Persistent Vector Store**: Driven by a local **Persistent ChromaDB** client running semantic embeddings (`BAAI/bge-small-en-v1.5`) alongside classical keyword search (**Rank-BM25Okapi**).
 *   **Hybrid Reciprocal Rank Fusion (RRF)**: Algebraically fuses dense vector distances and sparse keyword BM25 ranks using customizable weights (`BM25_WEIGHT` vs `VECTOR_WEIGHT`) for elite context relevance.
-*   **Resilience Stack**: Session-aware **circuit breakers** actively monitor and cool down unstable endpoints (throttling HTTP 429/503 errors), cascading queries down a priority chain (Gemini 3.5 Flash ➔ Groq Llama 3.3 ➔ Local Ollama).
+*   **Resilience Stack**: Session-aware **circuit breakers** actively monitor and cool down unstable endpoints (throttling HTTP 429/503 errors), cascading queries down a priority chain (Gemini 3.5 Flash / Claude Sonnet 4.6 ➔ Groq Llama 3.3 ➔ Local Ollama).
 
 ---
 
@@ -96,7 +96,7 @@ This section showcases a live visual walkthrough of our Phase 1 MVP in action, v
 > **Explanation**: Showcases the interactive `adviser chat` performing granular semantic extractions from the ingested corpus. The interface utilizes a highly responsive, fluid layout paradigm operating as an integrated, reactive 3-line inline block:
 > *   **Line 1**: The active user input prompt featuring an advanced `prompt_toolkit` style sheet, displaying a cyan `> ` prefix paired with a bold royal_blue `User ❯ ` prompt string, where typed text is rendered in clean white.
 > *   **Line 2**: Exactly one (1) blank empty line breakout spacer to isolate the input field from status components.
-> *   **Line 3**: An inline text-styled shortcuts status bar (`? for shortcuts | /exit to quit | /clear to reset`) featuring real-time, right-aligned provider tracking (`groq` / `gemini`).
+> *   **Line 3**: An inline text-styled shortcuts status bar (`? for shortcuts | /exit to quit | /clear to reset`) featuring real-time, right-aligned provider tracking (`anthropic` / `gemini` / `openai` / `groq` / `deepseek` / `mistral` / `openrouter` / `together` / `fireworks`).
 > 
 > In this run, the hybrid dense-sparse retriever extracts portfolio restructuring strategies and tracks market analyst upgrades and downgrades directly from internal corporate records, bypassing public wrappers. Crucially, as the conversation history scales, the entire 3-line interactive block scrolls fluidly within the console stream rather than remaining pinned or detached at the bottom of the physical monitor window, completely preventing cursor flickering or full-screen redraw jitter.
 

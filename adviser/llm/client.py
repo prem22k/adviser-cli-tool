@@ -143,6 +143,59 @@ class LLMClient:
         except Exception:
             raise
 
+    def _call_anthropic(self, provider: Any, messages: list[dict[str, str]]) -> str:
+        try:
+            import anthropic
+        except ImportError as exc:
+            raise RuntimeError("The anthropic package is required for Anthropic providers.") from exc
+
+        client = anthropic.Anthropic(api_key=provider.api_key)
+        
+        system_prompt = ""
+        anthropic_messages = []
+        for msg in messages:
+            if msg["role"] == "system":
+                system_prompt = msg["content"]
+            else:
+                anthropic_messages.append({
+                    "role": msg["role"],
+                    "content": msg["content"]
+                })
+
+        try:
+            kwargs: dict[str, Any] = {
+                "model": provider.model,
+                "messages": anthropic_messages,
+                "max_tokens": 4096,
+                "temperature": 0.2,
+            }
+            if system_prompt:
+                kwargs["system"] = system_prompt
+
+            from rich.console import Group
+            from rich.live import Live
+            from rich.markdown import Markdown
+            from rich.spinner import Spinner
+            from rich.text import Text
+
+            chunks: list[str] = []
+            spinner = Spinner("dots", text=Text(" • • •", style="dim"), style="dim")
+
+            with client.messages.stream(**kwargs) as stream:
+                with Live(spinner, console=console, auto_refresh=True, refresh_per_second=10) as live:
+                    first = True
+                    for text in stream.text_stream:
+                        if text:
+                            if first:
+                                first = False
+                            chunks.append(text)
+                            accumulated = "".join(chunks)
+                            live.update(Group(Markdown(accumulated)), refresh=True)
+                            
+            return "".join(chunks)
+        except Exception:
+            raise
+
     def chat(self, messages: list[dict[str, str]]) -> str:
         try:
             from openai import APIConnectionError, APITimeoutError, RateLimitError
@@ -153,6 +206,16 @@ class LLMClient:
             import google.api_core.exceptions as google_exceptions
         except ImportError:
             google_exceptions = None
+
+        try:
+            import anthropic
+            anthropic_errors = (
+                anthropic.RateLimitError,
+                anthropic.APIConnectionError,
+                anthropic.APITimeoutError,
+            )
+        except ImportError:
+            anthropic_errors = ()
 
         retryable_errors: tuple[type[BaseException], ...] = (
             RateLimitError,
@@ -166,6 +229,7 @@ class LLMClient:
                 google_exceptions.DeadlineExceeded,
                 google_exceptions.GoogleAPICallError,
             )
+        retryable_errors = retryable_errors + anthropic_errors
 
         available = self.circuit_breaker.available_providers(self.providers)
         if not available:
@@ -176,6 +240,8 @@ class LLMClient:
             try:
                 if provider.kind == "gemini":
                     return self._call_gemini(provider, messages)
+                if provider.kind == "anthropic":
+                    return self._call_anthropic(provider, messages)
                 if provider.kind == "airllm":
                     from adviser.llm.airllm_provider import generate_chat
                     answer = generate_chat(provider.model, messages)

@@ -113,8 +113,17 @@ def mcp_install_command(
         "env": {}
     }
     
-    # Add any active API keys from the current environment to the MCP config env
-    for key in ["OPENAI_API_KEY", "GEMINI_API_KEY", "GROQ_API_KEY"]:
+    for key in [
+        "OPENAI_API_KEY",
+        "GEMINI_API_KEY",
+        "GROQ_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "DEEPSEEK_API_KEY",
+        "MISTRAL_API_KEY",
+        "OPENROUTER_API_KEY",
+        "TOGETHER_API_KEY",
+        "FIREWORKS_API_KEY",
+    ]:
         val = os.getenv(key)
         if val:
             mcp_config["env"][key] = val
@@ -275,46 +284,196 @@ def init_command() -> None:
     default_data_path = str((Path.home() / "Documents" / "corpus").expanduser().resolve())
     data_path = Prompt.ask("Absolute path to your document folder", default=default_data_path)
     persona = Prompt.ask("Personal instructions", default=settings.ADVISER_PERSONA)
-    enable_cloud = Confirm.ask("Enable cloud APIs (Groq/Gemini)?", default=True)
-    enable_ollama = Confirm.ask("Enable Ollama (local)?", default=True)
 
+    # Defaults
     gemini_model = "gemini-3.5-flash"
     groq_model = "llama-3.3-70b-versatile"
+    openai_model = "gpt-5.4-mini"
+    anthropic_model = "claude-3-5-sonnet-20241022"
+    deepseek_model = "deepseek-chat"
+    mistral_model = "codestral-latest"
+    openrouter_model = "meta-llama/llama-3.3-70b-instruct"
+    together_model = "meta-llama/Llama-3.3-70b-instruct-turbo"
+    fireworks_model = "accounts/fireworks/models/llama-v3-70b-instruct"
 
     providers: list[str] = []
-    if enable_cloud:
-        for provider in ("gemini", "groq"):
-            if provider not in providers:
+    enable_ollama = False
+
+    if sys.stdin.isatty():
+        from prompt_toolkit.shortcuts import checkboxlist_dialog, radiolist_dialog
+
+        # 1. Select environment type (Cloud vs Local checkboxes)
+        env_choices = checkboxlist_dialog(
+            title="Adviser Environment Configurator",
+            text=(
+                "Use UP/DOWN arrows to navigate.\n"
+                "Press SPACE to check/uncheck environment options.\n"
+                "Press TAB to focus buttons, then ENTER to submit.\n\n"
+                "Which LLM environment types do you want to enable?"
+            ),
+            values=[
+                ("cloud", "Cloud API Providers (Anthropic, Gemini, OpenAI, Groq, DeepSeek, etc.)"),
+                ("local", "Local Offline LLMs (Ollama, AirLLM)")
+            ]
+        ).run()
+
+        if env_choices is None:
+            env_choices = []
+
+        # 2. Select Cloud Providers if Cloud environment selected
+        if "cloud" in env_choices:
+            cloud_choices = checkboxlist_dialog(
+                title="Cloud Provider Selection",
+                text=(
+                    "Which cloud API providers do you want to enable? (Select all that apply):\n"
+                    "Press SPACE to toggle, TAB to move, and ENTER to submit."
+                ),
+                values=[
+                    ("anthropic", "Anthropic Claude (Golden standard for coding workflows)"),
+                    ("gemini", "Google Gemini (Long-context reasoning flagship)"),
+                    ("openai", "OpenAI (GPT-5.4 & mini frontier models)"),
+                    ("groq", "Groq (Sub-100ms ultra-fast speed monster)"),
+                    ("deepseek", "DeepSeek (Definitive open-weights price disruptor)"),
+                    ("mistral", "Mistral AI (Codestral 256K software optimized context)"),
+                    ("openrouter", "OpenRouter (Fallback routing for 200+ models)"),
+                    ("together", "Together AI (Highly optimized multi-document RAG)"),
+                    ("fireworks", "Fireworks AI (Massive context flash-attention engine)")
+                ]
+            ).run()
+
+            if cloud_choices is None:
+                cloud_choices = []
+
+            for provider in cloud_choices:
                 providers.append(provider)
 
-        # Prompt for Gemini Model Selection
-        console.print("\n[bold cyan]Choose your Google Gemini model:[/bold cyan]")
-        console.print("1. [bold green]gemini-3.5-flash[/bold green] (Most intelligent Flash, sustained fast performance - Recommended default)")
-        console.print("2. [bold white]gemini-3.1-pro-preview[/bold white] (Advanced reasoning and agentic problem solving)")
-        console.print("3. [bold white]gemini-3.1-flash-lite[/bold white] (Frontier performance at a fraction of the cost)")
-        gemini_choice = Prompt.ask("Select option [1/2/3]", default="1")
-        if gemini_choice == "2":
-            gemini_model = "gemini-3.1-pro-preview"
-        elif gemini_choice == "3":
-            gemini_model = "gemini-3.1-flash-lite"
+            # 3. Model selection dial per selected cloud provider
+            if "anthropic" in cloud_choices:
+                anthropic_model = radiolist_dialog(
+                    title="Anthropic Model Selection",
+                    text="Choose the active Anthropic Claude model:",
+                    values=[
+                        ("claude-3-5-sonnet-20241022", "Claude 3.5 Sonnet (Standard 4.6 edition - Recommended default)"),
+                        ("claude-3-7-sonnet-20250219", "Claude 3.7 Sonnet (Reasoning hybrid engine)"),
+                        ("claude-3-5-sonnet-latest", "Claude 3.5 Sonnet (Latest production build)"),
+                        ("claude-3-5-opus-latest", "Claude 3.5 Opus (Heavy flagship reasoning)")
+                    ]
+                ).run() or "claude-3-5-sonnet-20241022"
 
-        # Prompt for Groq Model Selection
-        console.print("\n[bold cyan]Choose your Groq cloud model:[/bold cyan]")
-        console.print("1. [bold green]llama-3.3-70b-versatile[/bold green] (Versatile flagship, balanced reasoning - Recommended default)")
-        console.print("2. [bold white]llama-3.1-8b-instant[/bold white] (High speed, lightweight, token saving)")
-        console.print("3. [bold white]openai/gpt-oss-120b[/bold white] (Flagship open-weights, advanced tool use & reasoning)")
-        console.print("4. [bold white]openai/gpt-oss-20b[/bold white] (Ultra-fast 1000 t/s, budget-friendly)")
-        groq_choice = Prompt.ask("Select option [1/2/3/4]", default="1")
-        if groq_choice == "2":
-            groq_model = "llama-3.1-8b-instant"
-        elif groq_choice == "3":
-            groq_model = "openai/gpt-oss-120b"
-        elif groq_choice == "4":
-            groq_model = "openai/gpt-oss-20b"
+            if "gemini" in cloud_choices:
+                gemini_model = radiolist_dialog(
+                    title="Google Gemini Model Selection",
+                    text="Choose the active Google Gemini model:",
+                    values=[
+                        ("gemini-3.5-flash", "gemini-3.5-flash (Most intelligent Flash, fast performance - Recommended default)"),
+                        ("gemini-3.1-pro-preview", "gemini-3.1-pro-preview (Advanced reasoning and problem solving)"),
+                        ("gemini-3.1-flash-lite", "gemini-3.1-flash-lite (Frontier performance at a fraction of the cost)")
+                    ]
+                ).run() or "gemini-3.5-flash"
+
+            if "openai" in cloud_choices:
+                openai_model = radiolist_dialog(
+                    title="OpenAI Model Selection",
+                    text="Choose the active OpenAI model:",
+                    values=[
+                        ("gpt-5.4-mini", "gpt-5.4-mini (Reasoning capability at a fraction of cost - Recommended default)"),
+                        ("gpt-5.4", "gpt-5.4 (Flagship frontier reasoning engine)"),
+                        ("gpt-4o", "gpt-4o (Omni intelligence baseline)"),
+                        ("gpt-4o-mini", "gpt-4o-mini (Lightweight high-speed context)")
+                    ]
+                ).run() or "gpt-5.4-mini"
+
+            if "groq" in cloud_choices:
+                groq_model = radiolist_dialog(
+                    title="Groq Model Selection",
+                    text="Choose the active Groq model:",
+                    values=[
+                        ("llama-3.3-70b-versatile", "llama-3.3-70b-versatile (Flagship Llama 70B reasoning - Recommended default)"),
+                        ("llama-3.1-8b-instant", "llama-3.1-8b-instant (Lightweight high-speed token saver)"),
+                        ("openai/gpt-oss-120b", "openai/gpt-oss-120b (High-capacity open flagship weights)"),
+                        ("openai/gpt-oss-20b", "openai/gpt-oss-20b (Ultra-fast, budget friendly)")
+                    ]
+                ).run() or "llama-3.3-70b-versatile"
+
+            if "deepseek" in cloud_choices:
+                deepseek_model = radiolist_dialog(
+                    title="DeepSeek Model Selection",
+                    text="Choose the active DeepSeek model:",
+                    values=[
+                        ("deepseek-chat", "deepseek-chat (DeepSeek V3 API endpoint - Recommended default)"),
+                        ("deepseek-reasoner", "deepseek-reasoner (DeepSeek R1 reasoning chain)")
+                    ]
+                ).run() or "deepseek-chat"
+
+            if "mistral" in cloud_choices:
+                mistral_model = radiolist_dialog(
+                    title="Mistral AI Model Selection",
+                    text="Choose the active Mistral model:",
+                    values=[
+                        ("codestral-latest", "codestral-latest (256K software engineering context - Recommended default)"),
+                        ("mistral-large-latest", "mistral-large-latest (Flagship multi-lingual reasoning)")
+                    ]
+                ).run() or "codestral-latest"
+
+            if "openrouter" in cloud_choices:
+                openrouter_model = radiolist_dialog(
+                    title="OpenRouter Model Selection",
+                    text="Choose the active OpenRouter model:",
+                    values=[
+                        ("meta-llama/llama-3.3-70b-instruct", "meta-llama/llama-3.3-70b-instruct (Recommended default)"),
+                        ("google/gemini-2.5-flash", "google/gemini-2.5-flash (Fast, cost-efficient Flash)"),
+                        ("deepseek/deepseek-chat", "deepseek/deepseek-chat (Extremely cheap frontier alternative)")
+                    ]
+                ).run() or "meta-llama/llama-3.3-70b-instruct"
+
+            if "together" in cloud_choices:
+                together_model = radiolist_dialog(
+                    title="Together AI Model Selection",
+                    text="Choose the active Together AI model:",
+                    values=[
+                        ("meta-llama/Llama-3.3-70b-instruct-turbo", "meta-llama/Llama-3.3-70b-instruct-turbo (Highly optimized - Recommended default)"),
+                        ("meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo", "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo (High-speed RAG)")
+                    ]
+                ).run() or "meta-llama/Llama-3.3-70b-instruct-turbo"
+
+            if "fireworks" in cloud_choices:
+                fireworks_model = radiolist_dialog(
+                    title="Fireworks AI Model Selection",
+                    text="Choose the active Fireworks AI model:",
+                    values=[
+                        ("accounts/fireworks/models/llama-v3-70b-instruct", "llama-v3-70b-instruct (Standard flagship - Recommended default)"),
+                        ("accounts/fireworks/models/llama-v3p1-8b-instruct", "llama-v3p1-8b-instruct (Ultra-fast context scanner)")
+                    ]
+                ).run() or "accounts/fireworks/models/llama-v3-70b-instruct"
+
+        # 4. Select Local Offline Engines if Local selected
+        if "local" in env_choices:
+            local_choices = checkboxlist_dialog(
+                title="Local Offline Selection",
+                text=(
+                    "Which local offline engines do you want to enable? (Select all that apply):\n"
+                    "Press SPACE to select, TAB to focus buttons, and ENTER to submit."
+                ),
+                values=[
+                    ("ollama", "Ollama (Standard local runner daemon)"),
+                    ("airllm", "AirLLM (Sequential layer-wise disk loading for large 70B+ models)")
+                ]
+            ).run()
+
+            if local_choices is None:
+                local_choices = []
+
+            if "ollama" in local_choices:
+                providers.append("ollama")
+                enable_ollama = True
+            if "airllm" in local_choices:
+                providers.append("airllm")
+    else:
+        # Non-interactive fallback: enable gemini, groq, and ollama by default
+        providers = ["gemini", "groq", "ollama"]
+        enable_ollama = True
 
     if enable_ollama:
-        providers.append("ollama")
-
         # Check if Ollama is installed
         ollama_installed = bool(shutil.which("ollama"))
         if not ollama_installed:
@@ -354,6 +513,13 @@ def init_command() -> None:
         providers=providers,
         gemini_model=gemini_model,
         groq_model=groq_model,
+        openai_model=openai_model,
+        anthropic_model=anthropic_model,
+        deepseek_model=deepseek_model,
+        mistral_model=mistral_model,
+        openrouter_model=openrouter_model,
+        together_model=together_model,
+        fireworks_model=fireworks_model,
     )
     ProfileManager.set_active(profile.name)
     console.print(
