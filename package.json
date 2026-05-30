@@ -1,0 +1,27 @@
+{
+  "name": "adviser-cli",
+  "version": "0.2.0",
+  "description": "Terminal-native privacy-first local RAG assistant and IDE MCP server.",
+  "main": "bin/cli.js",
+  "bin": {
+    "adviser": "./bin/cli.js"
+  },
+  "scripts": {
+    "postinstall": "node ./scripts/install-python.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "keywords": [
+    "rag",
+    "mcp",
+    "ai",
+    "local",
+    "privacy-first",
+    "agentic",
+    "cursor",
+    "claude-code"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

@@ -103,13 +103,21 @@ This section showcases a live visual walkthrough of our Phase 1 MVP in action, v
 
 ---
 
-## 🛠️ Installation & Setup
+## 🛠️ Zero-Friction Global Installation
 
-Adviser requires **Python 3.10+** and is designed to install and configure itself automatically in under 60 seconds.
+Adviser-CLI can be installed globally as a package, setting up its Python virtual environment and dependencies automatically.
 
-### The 1-Command Express Installer (Recommended)
-Simply clone the repository and run the express installer script matching your operating system. It automatically builds a localized virtual environment (`./venv`), optimizes dependencies (leveraging `uv` if present for 10x faster installation, with a robust fallback to standard `pip`), and launches the setup wizard instantly:
+### Option A: The NPM Installer (Recommended - Easiest & Runs Anywhere)
+If you have Node.js/NPM installed, you can install Adviser-CLI globally with a single command. The installer automatically checks your Python 3 environment, initializes a localized virtualenv, and installs all dependencies in the background:
+```bash
+npm install -g adviser-cli
+```
+*Once installed, the `adviser` command is globally available. Simply run `adviser init` to launch the interactive setup wizard!*
 
+---
+
+### Option B: The Shell Installer Scripts
+If you prefer shell-only installation without npm, clone the repository and run the express script for your operating system:
 *   **macOS & Linux**:
     ```bash
     git clone https://github.com/prem22k/adviser-cli-tool.git && cd adviser-cli-tool && ./install.sh
@@ -121,38 +129,41 @@ Simply clone the repository and run the express installer script matching your o
 
 ---
 
-### Manual Step-by-Step Installation
-If you prefer to configure your environment manually, you can execute the following steps:
+## 🤖 Zero-Friction IDE MCP Integration (One-Click Setup)
 
-1.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/prem22k/adviser-cli-tool.git
-    cd adviser-cli-tool
-    ```
+Adviser-CLI features an automated integration command to register itself as a Model Context Protocol (MCP) server for agentic IDE extensions in a single click:
 
-2.  **Create and activate a standard virtual environment**:
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
+```bash
+adviser mcp-install
+```
 
-3.  **Install the package in editable mode with development dependencies**:
-    ```bash
-    pip install -e ".[dev]"
-    ```
+### What this does:
+1. **Cursor IDE Integration**: Scans your system and programmatically injects the `adviser-mcp` server configuration directly into the global Cursor configuration file (`config.json`) across macOS, Windows, and Linux. No manual JSON editing or path copying required!
+2. **Claude Code Integration**: Generates and prints the exact, ready-to-run terminal command to register Adviser-CLI with Claude Code globally:
+   ```bash
+   claude mcp add adviser-mcp -- /path/to/adviser mcp
+   ```
+3. **Concurrency-Safe Operation**: Automatically configures the persistent database to use **Write-Ahead Logging (WAL mode)** and accesses the database over a **shared-cache read-only connection**. This eliminates SQLite `database is locked` errors, enabling your IDE agent to run background queries concurrently while you execute CLI ingests.
 
 ---
 
-## 🛠️ Execution & Command Reference
+## 💻 Execution & Command Reference
 
 Verify your installation:
 ```bash
 adviser --help
 ```
 
-### 1. Initialize a Profile
+### 1. Multi-Profile Setup
 ```bash
+# Launch the interactive profile setup wizard
 adviser init
+
+# List all saved configuration profiles
+adviser profile list
+
+# Select an active profile
+adviser profile select my-profile
 ```
 
 ### 2. Ingest your Documents
@@ -182,14 +193,8 @@ adviser digest
 adviser digest --plan
 ```
 
-### 5. Managing Profiles & Snapshots
+### 5. Managing Index Snapshots
 ```bash
-# List all saved configuration profiles
-adviser profile list
-
-# Select an active profile
-adviser profile select my-profile
-
 # Backup your active index to a compressed tarball
 adviser snapshot save backup.tar.gz
 
@@ -199,14 +204,14 @@ adviser snapshot load backup.tar.gz
 
 ---
 
-## 🚀 Phase 2 Technical Roadmap
+## 🚀 Completed Phase 2 Technical Deliverables
 
-Our remaining 7-day sprint will focus on elevating Adviser-CLI from a terminal-native chat tool into a deeply integrated developer workspace assistant:
+We have fully implemented, tested, and delivered the Phase 2 systems roadmap:
 
-1.  **VisionRAG Pipeline (ColPali Integration)**:
-    *   Implement layout-aware visual embeddings. For complex system architectures, database schemas, and multi-repo financial PDFs where text parsers destroy tables and charts, Adviser will parse PDF pages as high-resolution images, preserving visual and tabular structures.
-2.  **Model Context Protocol (MCP) Server Integration**:
-    *   Expose the local ChromaDB persistent index as a secure, authenticated MCP server. This allows agentic IDE extensions (like Cursor, Claude Code, and Windsurf) to query local corporate context autonomously while keeping your source code and documentation strictly local and private.
+1. **Model Context Protocol (MCP) Server**: A standard-compliant JSON-RPC Stdio transport server exposing `query_local_vector_index` and `fetch_document_source` tools natively.
+2. **Layout-Aware VisionRAG Indexer**: A Pillow and `pdf2image` visual rasterization pipeline average-pooling ColPali `vidore/colpali-v1.2` patch embeddings into a 1280-dimension cosine index.
+3. **Persisted SQLite WAL Concurrency**: Solves multi-process locks, enabling parallel retrieval queries during active vector updates.
+4. **NPM Package Packaging**: Exposes `adviser` as a global Node-wrapped command, seamlessly bridging the Python ML backend with Node-centric IDE ecosystems.
 
 ---
 

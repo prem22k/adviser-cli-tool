@@ -71,5 +71,9 @@ echo -e "${BLUE}[4/4] Setup complete!${NC}"
 echo -e "${GREEN}✓ System configured successfully!${NC}\n"
 
 # Execute init automatically to get them started right away
-echo -e "${CYAN}${BOLD}Launching Adviser interactive Setup Wizard...${NC}"
-./venv/bin/adviser init
+if [ "$1" != "--non-interactive" ] && [ -z "$ADVISER_NON_INTERACTIVE" ]; then
+    echo -e "${CYAN}${BOLD}Launching Adviser interactive Setup Wizard...${NC}"
+    ./venv/bin/adviser init
+else
+    echo -e "${GREEN}✓ Setup complete. You can now run 'adviser init' to configure your active profile.${NC}"
+fi

@@ -74,6 +74,88 @@ def mcp_command(
     start_server(profile_name=profile)
 
 
+@app.command("mcp-install")
+def mcp_install_command(
+    profile: str | None = typer.Option(None, "--profile", help="Profile to configure for the MCP server session.")
+) -> None:
+    """Automatically register this MCP server with your Cursor IDE and Claude Code."""
+    import os
+    import sys
+    import json
+    import shutil
+    from pathlib import Path
+    
+    # 1. Resolve absolute path of adviser executable
+    executable_path = shutil.which("adviser")
+    if not executable_path:
+        # Fallback to the current script's parent venv path
+        executable_path = str(Path(sys.executable).parent / "adviser")
+        if not Path(executable_path).exists():
+            # Fallback to absolute file location of the python running cli.py
+            executable_path = str(Path(sys.argv[0]).resolve())
+            
+    resolved_path = str(Path(executable_path).resolve())
+    console.print(f"[cyan]Resolved adviser executable path:[/cyan] [bold]{resolved_path}[/bold]")
+    
+    # Build the MCP server configuration
+    mcp_config = {
+        "command": resolved_path,
+        "args": ["mcp"] + (["--profile", profile] if profile else []),
+        "env": {}
+    }
+    
+    # Add any active API keys from the current environment to the MCP config env
+    for key in ["OPENAI_API_KEY", "GEMINI_API_KEY", "GROQ_API_KEY"]:
+        val = os.getenv(key)
+        if val:
+            mcp_config["env"][key] = val
+            
+    # Configure Cursor
+    cursor_configured = False
+    system = sys.platform
+    cursor_paths = []
+    
+    if system == "darwin":
+        cursor_paths.append(Path.home() / "Library/Application Support/Cursor/User/globalStorage/cursor.chat.mcp/config.json")
+    elif system == "win32":
+        if os.getenv("APPDATA"):
+            cursor_paths.append(Path(os.getenv("APPDATA")) / "Cursor/User/globalStorage/cursor.chat.mcp/config.json")
+    else:  # Linux
+        cursor_paths.append(Path.home() / ".config/Cursor/User/globalStorage/cursor.chat.mcp/config.json")
+        cursor_paths.append(Path.home() / ".config/cursor/User/globalStorage/cursor.chat.mcp/config.json")
+        
+    for cursor_path in cursor_paths:
+        try:
+            cursor_path.parent.mkdir(parents=True, exist_ok=True)
+            data = {"mcpServers": {}}
+            if cursor_path.exists():
+                try:
+                    data = json.loads(cursor_path.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
+            
+            if "mcpServers" not in data:
+                data["mcpServers"] = {}
+                
+            data["mcpServers"]["adviser-mcp"] = mcp_config
+            cursor_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+            console.print(f"[green]✓ Successfully registered with Cursor at:[/green] [dim]{cursor_path}[/dim]")
+            cursor_configured = True
+        except Exception as exc:
+            console.print(f"[yellow]Could not configure Cursor at {cursor_path}:[/yellow] {exc}")
+
+    # Output Claude Code instructions
+    console.print("\n[bold cyan]=== Claude Code MCP Integration ===[/bold cyan]")
+    claude_cmd = f"claude mcp add adviser-mcp -- {resolved_path} mcp" + (f" --profile {profile}" if profile else "")
+    console.print(f"To register with Claude Code, copy and run this command in your terminal:")
+    console.print(f"\n  [bold green]{claude_cmd}[/bold green]\n")
+    
+    if cursor_configured:
+        console.print("[bold green]✔ MCP Server configured successfully for Cursor![/bold green]")
+    else:
+        console.print("[yellow]Cursor config file not accessible. Please add the server command manually in Cursor settings.[/yellow]")
+
+
 @app.command("digest")
 def digest_command(plan: bool = typer.Option(False, "--plan", "-p", help="Estimate a digest plan only.")) -> None:
     profile = _activate_runtime_profile(None)

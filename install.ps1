@@ -69,9 +69,15 @@ if ($hasUv) {
 }
 Write-Host "✓ Successfully installed Adviser-CLI and all dependencies" -ForegroundColor Green
 
-# Step 4: Setup Wizard Invocations
-Write-Host "`n[4/4] Setup complete!" -ForegroundColor Blue
-Write-Host "✓ System configured successfully!" -ForegroundColor Green
+# Execute init automatically to get them started right away
+$nonInteractive = $false
+if ($args.Contains("--non-interactive") -or $env:ADVISER_NON_INTERACTIVE) {
+    $nonInteractive = $true
+}
 
-Write-Host "`nLaunching Adviser interactive Setup Wizard..." -ForegroundColor Cyan
-& .\venv\Scripts\adviser.exe init
+if (-not $nonInteractive) {
+    Write-Host "`nLaunching Adviser interactive Setup Wizard..." -ForegroundColor Cyan
+    & .\venv\Scripts\adviser.exe init
+} else {
+    Write-Host "`n✓ Setup complete. You can now run 'adviser init' to configure your active profile." -ForegroundColor Green
+}
