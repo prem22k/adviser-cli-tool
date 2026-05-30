@@ -446,13 +446,13 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
     except (ValueError, AttributeError):
         cwd_str = str(cwd)
 
-    # Clean, high-fidelity ASCII landing header resembling Antigravity CLI
+    # Clean, high-fidelity unique ASCII landing header for Adviser
     logo = (
-        f"\n      [bold cyan]▄▀▀▄[/bold cyan]        [bold white]Adviser CLI v{__version__}[/bold white]\n"
-        f"     [bold cyan]▀▀▀▀▀▀[/bold cyan]       [dim]{active_user} (Local RAG Brain)[/dim]\n"
-        f"    [bold cyan]▀▀▀▀▀▀▀▀[/bold cyan]      [dim]{client.primary_provider_name} (Medium / Medium Hardware)[/dim]\n"
-        f"   [bold cyan]▄▀▀    ▀▀▄[/bold cyan]     [dim]{cwd_str}[/dim]\n"
-        f"  [bold cyan]▄▀▀      ▀▀▄[/bold cyan]\n"
+        f"\n  [bold cyan]▄███▄[/bold cyan]\n"
+        f" [bold cyan]█▀ ▲ ▀█[/bold cyan]      [bold white]Adviser CLI v{__version__}[/bold white]\n"
+        f" [bold cyan]█ █▀█ █[/bold cyan]      [dim]{active_user} (Local RAG Brain)[/dim]\n"
+        f" [bold cyan]▀█▄▄▄█▀[/bold cyan]      [dim]{client.primary_provider_name} (Medium / Medium Hardware)[/dim]\n"
+        f"   [bold cyan]▀▀▀[/bold cyan]        [dim]{cwd_str}[/dim]\n"
     )
     console.print(logo)
 
