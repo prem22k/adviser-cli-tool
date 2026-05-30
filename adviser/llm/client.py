@@ -44,7 +44,7 @@ class LLMClient:
             for part in stream:
                 token = part.choices[0].delta.content or ""
                 if token:
-                    console.print(token, style="bold green", end="")
+                    console.print(token, end="")
                     chunks.append(token)
             console.print()
             return "".join(chunks)
@@ -104,7 +104,7 @@ class LLMClient:
         for chunk in response:
             token = getattr(chunk, "text", "") or ""
             if token:
-                console.print(token, style="bold green", end="")
+                console.print(token, end="")
                 chunks.append(token)
         console.print()
         return "".join(chunks)
@@ -145,7 +145,7 @@ class LLMClient:
                 if provider.kind == "airllm":
                     from adviser.llm.airllm_provider import generate_chat
                     answer = generate_chat(provider.model, messages)
-                    console.print(answer, style="bold green")
+                    console.print(answer)
                     return answer
                 return self._call_openai_compatible(provider, messages)
             except retryable_errors as exc:

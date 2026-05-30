@@ -492,7 +492,10 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
         sys.stdout.flush()
         
         # Print clean, high-fidelity prompt line in conversation history
-        console.print(f"[bold cyan]User ❯[/bold cyan] {query.strip()}")
+        # featuring top separator line, > prefix, bold royal_blue coloring, and clean blank spacing
+        console.print("─" * console.width, style="dim")
+        console.print(f"[bold royal_blue]> {query.strip()}[/bold royal_blue]")
+        console.print()
         
         # 4. Parse slash commands
         query_strip = query.strip()
