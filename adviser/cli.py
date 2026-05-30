@@ -539,7 +539,6 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
             _print_debug_hits(hits)
         context = retriever.format_context(hits, max_chars=settings.MAX_CONTEXT_TOKENS * 2)
         messages = memory.get_messages(settings.ADVISER_PERSONA, query, context)
-        console.print("[bold green]Assistant ❯[/bold green] ", end="")
         answer = client.chat(messages)
         memory.add("user", query)
         memory.add("assistant", answer)
