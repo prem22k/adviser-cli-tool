@@ -24,6 +24,7 @@ dependencies = [
   "ruamel.yaml>=0.18.0",
   "prompt_toolkit>=3.0.0",
   "psutil>=6.0.0",
+  "mcp>=1.0.0",
 ]
 
 [project.optional-dependencies]
@@ -32,6 +33,12 @@ dev = [
   "mypy",
   "black",
   "flake8",
+]
+vision = [
+  "colpali-engine>=0.3.0",
+  "pdf2image>=1.17.0",
+  "Pillow>=10.0.0",
+  "torch>=2.2.0",
 ]
 
 [project.scripts]

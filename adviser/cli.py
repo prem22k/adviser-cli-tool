@@ -64,6 +64,16 @@ def ingest_command(force: bool = typer.Option(False, "--force", "-f", help="Rebu
     run_ingest(force_reload=force)
 
 
+@app.command("mcp")
+def mcp_command(
+    profile: str | None = typer.Option(None, "--profile", help="Profile to load for the MCP server session.")
+) -> None:
+    """Launch the Model Context Protocol (MCP) server for IDE integration."""
+    _activate_runtime_profile(profile)
+    from adviser.mcp.server import start_server
+    start_server(profile_name=profile)
+
+
 @app.command("digest")
 def digest_command(plan: bool = typer.Option(False, "--plan", "-p", help="Estimate a digest plan only.")) -> None:
     profile = _activate_runtime_profile(None)
