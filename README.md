@@ -110,6 +110,14 @@ This section showcases a live visual walkthrough of our Phase 1 MVP in action, v
 
 ---
 
+### Step 5: Model Context Protocol (MCP) IDE Synergy
+![Model Context Protocol (MCP) IDE Synergy](./assets/mcp_synergy.png)
+> **Explanation**: Showcases the agentic integration of Adviser-CLI running as an active local Model Context Protocol (MCP) server inside your development environment.
+> 
+> Executing `adviser mcp-install` launches our interactive TUI selection wizard, programmatically registering the stdio-transport server with your Cursor IDE, Claude Desktop, Windsurf, or Cline extensions. Once active, advanced developer agents (like Cursor Composer or Claude Code) natively call Adviser's tools—such as `query_local_vector_index` and `fetch_document_source`—to retrieve proprietary semantic context and workspace records in real-time, providing unified private RAG capabilities straight to your coding workflow.
+
+---
+
 ## 🛠️ Zero-Friction Global Installation
 
 Adviser-CLI can be installed globally as a package, setting up its Python virtual environment and dependencies automatically.
