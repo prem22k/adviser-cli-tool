@@ -93,13 +93,20 @@ This section showcases a live visual walkthrough of our Phase 1 MVP in action, v
 
 ### Step 3: Direct Knowledge Retrieval & Financial Analysis
 ![Direct Knowledge Retrieval & Financial Analysis](./assets/chat_1.png)
-> **Explanation**: Showcases the interactive `adviser chat` performing granular semantic extractions from the ingested corpus. In this run, the hybrid dense-sparse retriever effortlessly extracts portfolio restructuring strategies (including the QQQ tax-loss token roll) and tracks market analyst upgrades and downgrades directly from internal corporate records, bypassing public wrappers.
+> **Explanation**: Showcases the interactive `adviser chat` performing granular semantic extractions from the ingested corpus. The interface utilizes a highly responsive, fluid layout paradigm operating as an integrated, reactive 3-line inline block:
+> *   **Line 1**: The active user input prompt featuring an advanced `prompt_toolkit` style sheet, displaying a cyan `> ` prefix paired with a bold royal_blue `User ❯ ` prompt string, where typed text is rendered in clean white.
+> *   **Line 2**: Exactly one (1) blank empty line breakout spacer to isolate the input field from status components.
+> *   **Line 3**: An inline text-styled shortcuts status bar (`? for shortcuts | /exit to quit | /clear to reset`) featuring real-time, right-aligned provider tracking (`groq` / `gemini`).
+> 
+> In this run, the hybrid dense-sparse retriever extracts portfolio restructuring strategies and tracks market analyst upgrades and downgrades directly from internal corporate records, bypassing public wrappers. Crucially, as the conversation history scales, the entire 3-line interactive block scrolls fluidly within the console stream rather than remaining pinned or detached at the bottom of the physical monitor window, completely preventing cursor flickering or full-screen redraw jitter.
 
 ---
 
 ### Step 4: Enterprise RAG Capabilities & Structural Analysis
 ![Enterprise RAG Capabilities & Structural Analysis](./assets/chat_2.png)
-> **Explanation**: Our heavy-hitting multi-document synthesis in action. The tool navigates deep, multi-threaded corporate exchanges to formulate a concise 5-point analysis of structural and bankruptcy risks during energy volatility crises. It prints the exact local persistent chunk locations directly in the shell for immediate code audibility.
+> **Explanation**: Our multi-document synthesis in action, running within the fluid, inline-scrolling CLI prompt loop. The layout engine isolates the active input interaction space from the historical scrollback frames using vertical spacer lines, which are cleanly cleared upon submission via ANSI escape sequences to preserve a pristine terminal log. 
+> 
+> The tool navigates deep, multi-threaded corporate exchanges to formulate a concise 5-point analysis of structural and bankruptcy risks during energy volatility crises. It prints the exact local persistent chunk locations directly in the shell for immediate code audibility, cleanly bounded by dim horizontal separator lines `─` that mark the completion of each response turn without duplication.
 
 ---
 
