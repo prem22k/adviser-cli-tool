@@ -433,30 +433,91 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
     memory = ConversationMemory(settings.CONVERSATION_WINDOW)
     session = PromptSession()
 
-    header = Panel.fit(
-        f"[bold white on cyan] ADVISER v{__version__} [/bold white on cyan]\n"
-        f"Loaded chunks: {stats.get('total_chunks', 0)}\n"
-        f"Primary provider: {client.primary_provider_name}\n"
-        "Type exit to quit | clear to reset | sources to list files",
-        border_style="cyan",
+    # Get active user and home-contracted paths to match premium pop-os terminal design
+    import getpass
+    active_user = getpass.getuser()
+    cwd = Path.cwd()
+    home = Path.home()
+    try:
+        if cwd.is_relative_to(home):
+            cwd_str = f"~/{cwd.relative_to(home)}"
+        else:
+            cwd_str = str(cwd)
+    except (ValueError, AttributeError):
+        cwd_str = str(cwd)
+
+    # Clean, high-fidelity ASCII landing header resembling Antigravity CLI
+    logo = (
+        f"\n      [bold cyan]▄▀▀▄[/bold cyan]        [bold white]Adviser CLI v{__version__}[/bold white]\n"
+        f"     [bold cyan]▀▀▀▀▀▀[/bold cyan]       [dim]{active_user} (Local RAG Brain)[/dim]\n"
+        f"    [bold cyan]▀▀▀▀▀▀▀▀[/bold cyan]      [dim]{client.primary_provider_name} (Medium / Medium Hardware)[/dim]\n"
+        f"   [bold cyan]▄▀▀    ▀▀▄[/bold cyan]     [dim]{cwd_str}[/dim]\n"
+        f"  [bold cyan]▄▀▀      ▀▀▄[/bold cyan]\n"
     )
-    console.print(header)
+    console.print(logo)
 
     while True:
-        query = session.prompt(HTML("<prompt>User ❯ </prompt>"), style=PROMPT_STYLE)
+        # 1. Print top separator line matching terminal width
+        console.print("─" * console.width, style="dim")
+        
+        # 2. Get user prompt session input
+        try:
+            query = session.prompt(HTML("<prompt>&gt; </prompt>"), style=PROMPT_STYLE)
+        except (KeyboardInterrupt, EOFError):
+            break
+            
         if not query.strip():
             continue
-        command = query.strip().lower()
+            
+        # 3. Print bottom separator line
+        console.print("─" * console.width, style="dim")
+        
+        # 4. Print bottom status bar metadata aligned to edges
+        left_text = "? for shortcuts | /exit to quit | /clear to reset"
+        right_text = f"{client.primary_provider_name}"
+        padding = max(1, console.width - len(left_text) - len(right_text))
+        console.print(f"[dim]{left_text}[/dim]" + " " * padding + f"[dim]{right_text}[/dim]\n")
+        
+        # 5. Parse slash commands
+        query_strip = query.strip()
+        if query_strip.startswith("/") or query_strip == "?":
+            cmd_parts = query_strip.split()
+            cmd = cmd_parts[0].lower()
+            
+            if cmd in {"/exit", "/quit", "/q"}:
+                break
+            elif cmd in {"/clear", "/c"}:
+                memory.clear()
+                console.print("[cyan]Conversation memory cleared.[/cyan]")
+                continue
+            elif cmd in {"/sources", "/s"}:
+                _print_sources(stats.get("sources", []))
+                continue
+            elif cmd in {"/help", "?", "/h"}:
+                console.print("\n[bold cyan]=== Adviser CLI Slash Commands ===[/bold cyan]")
+                console.print("  [bold cyan]/q[/bold cyan], [bold cyan]/exit[/bold cyan], [bold cyan]/quit[/bold cyan]   Exit the interactive chat session")
+                console.print("  [bold cyan]/c[/bold cyan], [bold cyan]/clear[/bold cyan]            Clear the conversational memory window")
+                console.print("  [bold cyan]/s[/bold cyan], [bold cyan]/sources[/bold cyan]          List all indexed local source files")
+                console.print("  [bold cyan]/h[/bold cyan], [bold cyan]/help[/bold cyan], [bold cyan]?[/bold cyan]             Show this command reference guide\n")
+                continue
+            else:
+                console.print(f"[yellow]Unknown command: {cmd}. Type /help or ? for shortcuts.[/yellow]")
+                continue
+
+        # Transparently support legacy non-slash commands
+        command = query_strip.lower()
         if command in {"exit", "quit"}:
             break
         if command == "clear":
             memory.clear()
-            console.print("[cyan]Conversation memory cleared.[/cyan]")
+            console.print("[cyan]Conversation memory cleared. Tip: Use slash command /clear or /c[/cyan]")
             continue
         if command == "sources":
             _print_sources(stats.get("sources", []))
+            console.print("[dim]Tip: Use slash command /sources or /s[/dim]")
             continue
 
+        # 6. Search database and execute local RAG generation loop
         hits = retriever.search(query, settings.TOP_K_RETRIEVE)
         if debug:
             _print_debug_hits(hits)
