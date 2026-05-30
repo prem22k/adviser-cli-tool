@@ -138,8 +138,8 @@ def start_server(profile_name: Optional[str] = None) -> None:
     db_file = Path(settings.DB_PATH) / "chroma.sqlite3"
     if db_file.exists():
         try:
-            # Connect in WAL mode to allow non-blocking concurrent reads during ingestion
-            conn = sqlite3.connect(f"file:{db_file}?mode=ro", uri=True)
+            # Connect in read-write mode briefly to enable WAL mode persistently
+            conn = sqlite3.connect(str(db_file))
             conn.execute("PRAGMA journal_mode=WAL;")
             conn.close()
         except Exception as exc:
