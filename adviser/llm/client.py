@@ -51,7 +51,7 @@ class LLMClient:
             # Latency spinner anchored to a layout container using the dot animation and elegant ellipses
             spinner = Spinner("dots", text=Text(" • • •", style="dim"), style="dim")
             
-            with Live(spinner, console=console, auto_refresh=False) as live:
+            with Live(spinner, console=console, auto_refresh=True, refresh_per_second=10) as live:
                 first = True
                 for part in stream:
                     token = part.choices[0].delta.content or ""
@@ -128,7 +128,7 @@ class LLMClient:
             # Latency spinner anchored to a layout container using the dot animation and elegant ellipses
             spinner = Spinner("dots", text=Text(" • • •", style="dim"), style="dim")
             
-            with Live(spinner, console=console, auto_refresh=False) as live:
+            with Live(spinner, console=console, auto_refresh=True, refresh_per_second=10) as live:
                 first = True
                 for chunk in response:
                     token = getattr(chunk, "text", "") or ""
