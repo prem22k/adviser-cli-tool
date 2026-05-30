@@ -10,6 +10,7 @@ import typer
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
@@ -28,7 +29,12 @@ from adviser.retrieval.retriever import HybridRetriever
 from adviser.hardware import detect
 
 console = Console()
-PROMPT_STYLE = Style.from_dict({"prompt": "bold ansicyan"})
+PROMPT_STYLE = Style.from_dict({
+    "prompt": "bold royalblue",
+    "prefix": "bold cyan",
+    "text": "white",
+    "auto-suggest": "dim ansigray",
+})
 
 app = typer.Typer(help="Adviser CLI", invoke_without_command=True, no_args_is_help=False)
 snapshot_app = typer.Typer(help="Backup and restore vector database snapshots.")
@@ -431,7 +437,10 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
         stats = retriever.load()
     client = LLMClient(providers=providers)
     memory = ConversationMemory(settings.CONVERSATION_WINDOW)
-    session = PromptSession()
+    session = PromptSession(
+        style=PROMPT_STYLE,
+        auto_suggest=AutoSuggestFromHistory(),
+    )
 
     # Get active user and home-contracted paths to match premium pop-os terminal design
     import getpass
@@ -468,29 +477,32 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
         return HTML(f"<style fg='ansigray'>{separator}</style>\n{left}{' ' * padding}{right}")
 
     while True:
+        # Print a vertical spacer line to visually isolate the input interaction space
+        console.print()
+        
         # Get user prompt session input using the persistent bottom toolbar
         try:
             query = session.prompt(
-                HTML("<prompt>&gt; </prompt>"),
-                style=PROMPT_STYLE,
+                [('class:prefix', '> '), ('class:prompt', 'User ❯ ')],
                 bottom_toolbar=_bottom_toolbar
             )
         except (KeyboardInterrupt, EOFError):
             break
             
         if not query.strip():
-            # Clear the active single input line to prevent duplicate empty prompts
-            sys.stdout.write("\033[A\033[2K")
+            # Clear the active single input line and the vertical spacer line above it
+            sys.stdout.write("\033[A\033[2K\033[A\033[2K")
             sys.stdout.flush()
             continue
             
         # 3. Clean up active prompt lines to preserve clean scrollback history
-        # Move up 1 line (prompt input line) and clear it
-        sys.stdout.write("\033[A\033[2K")
+        # Move up 2 lines (prompt input line and the vertical spacer line above it) and clear them
+        sys.stdout.write("\033[A\033[2K\033[A\033[2K")
         sys.stdout.flush()
         
         # Print clean, high-fidelity prompt line in conversation history
-        # featuring > prefix, bold royal_blue coloring, and clean blank spacing
+        # bounded cleanly by vertical spacer lines to keep the interaction visually isolated
+        console.print()
         console.print(f"[bold royal_blue]> {query.strip()}[/bold royal_blue]")
         console.print()
         
