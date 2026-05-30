@@ -110,27 +110,37 @@ def mcp_install_command(
         if val:
             mcp_config["env"][key] = val
             
-    # Configure Cursor
-    cursor_configured = False
+    # Configure Cursor & Windsurf
+    ide_configured = False
     system = sys.platform
-    cursor_paths = []
+    config_mappings = []
     
+    # 1. Cursor Global standard configuration path (May 2026 spec)
+    config_mappings.append((Path.home() / ".cursor/mcp.json", "Cursor (Global)"))
+    
+    # 2. Cursor Project-Local configuration path
+    config_mappings.append((Path(".cursor/mcp.json"), "Cursor (Project-Local)"))
+    
+    # 3. Cursor Legacy globalStorage configuration paths
     if system == "darwin":
-        cursor_paths.append(Path.home() / "Library/Application Support/Cursor/User/globalStorage/cursor.chat.mcp/config.json")
+        config_mappings.append((Path.home() / "Library/Application Support/Cursor/User/globalStorage/cursor.chat.mcp/config.json", "Cursor (Legacy globalStorage)"))
     elif system == "win32":
         if os.getenv("APPDATA"):
-            cursor_paths.append(Path(os.getenv("APPDATA")) / "Cursor/User/globalStorage/cursor.chat.mcp/config.json")
+            config_mappings.append((Path(os.getenv("APPDATA")) / "Cursor/User/globalStorage/cursor.chat.mcp/config.json", "Cursor (Legacy globalStorage)"))
     else:  # Linux
-        cursor_paths.append(Path.home() / ".config/Cursor/User/globalStorage/cursor.chat.mcp/config.json")
-        cursor_paths.append(Path.home() / ".config/cursor/User/globalStorage/cursor.chat.mcp/config.json")
+        config_mappings.append((Path.home() / ".config/Cursor/User/globalStorage/cursor.chat.mcp/config.json", "Cursor (Legacy globalStorage)"))
+        config_mappings.append((Path.home() / ".config/cursor/User/globalStorage/cursor.chat.mcp/config.json", "Cursor (Legacy globalStorage)"))
         
-    for cursor_path in cursor_paths:
+    # 4. Windsurf Global standard configuration path
+    config_mappings.append((Path.home() / ".codeium/windsurf/mcp_config.json", "Windsurf (Global)"))
+        
+    for target_path, label in config_mappings:
         try:
-            cursor_path.parent.mkdir(parents=True, exist_ok=True)
+            target_path.parent.mkdir(parents=True, exist_ok=True)
             data = {"mcpServers": {}}
-            if cursor_path.exists():
+            if target_path.exists():
                 try:
-                    data = json.loads(cursor_path.read_text(encoding="utf-8"))
+                    data = json.loads(target_path.read_text(encoding="utf-8"))
                 except Exception:
                     pass
             
@@ -138,11 +148,12 @@ def mcp_install_command(
                 data["mcpServers"] = {}
                 
             data["mcpServers"]["adviser-mcp"] = mcp_config
-            cursor_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
-            console.print(f"[green]✓ Successfully registered with Cursor at:[/green] [dim]{cursor_path}[/dim]")
-            cursor_configured = True
+            target_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+            console.print(f"[green]✓ Successfully registered with {label} at:[/green] [dim]{target_path}[/dim]")
+            ide_configured = True
         except Exception as exc:
-            console.print(f"[yellow]Could not configure Cursor at {cursor_path}:[/yellow] {exc}")
+            # We don't want to print failures for locations that don't apply or don't exist
+            pass
 
     # Output Claude Code instructions
     console.print("\n[bold cyan]=== Claude Code MCP Integration ===[/bold cyan]")
@@ -150,10 +161,10 @@ def mcp_install_command(
     console.print(f"To register with Claude Code, copy and run this command in your terminal:")
     console.print(f"\n  [bold green]{claude_cmd}[/bold green]\n")
     
-    if cursor_configured:
-        console.print("[bold green]✔ MCP Server configured successfully for Cursor![/bold green]")
+    if ide_configured:
+        console.print("[bold green]✔ MCP Server configured successfully for your local IDEs![/bold green]")
     else:
-        console.print("[yellow]Cursor config file not accessible. Please add the server command manually in Cursor settings.[/yellow]")
+        console.print("[yellow]Automatic IDE configuration skipped. Please add the server manually in Cursor/Windsurf settings.[/yellow]")
 
 
 @app.command("digest")

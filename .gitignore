@@ -12,3 +12,4 @@ test_corpus/
 .agents/
 .codex/
 .env
+.cursor/
