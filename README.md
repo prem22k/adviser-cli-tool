@@ -212,6 +212,8 @@ We have fully implemented, tested, and delivered the Phase 2 systems roadmap:
 2. **Layout-Aware VisionRAG Indexer**: A Pillow and `pdf2image` visual rasterization pipeline average-pooling ColPali `vidore/colpali-v1.2` patch embeddings into a 1280-dimension cosine index.
 3. **Persisted SQLite WAL Concurrency**: Solves multi-process locks, enabling parallel retrieval queries during active vector updates.
 4. **NPM Package Packaging**: Exposes `adviser` as a global Node-wrapped command, seamlessly bridging the Python ML backend with Node-centric IDE ecosystems.
+5. **Claude-Style Hyper-Smooth Token Streaming**: Integrates a dedicated `rich.live.Live` manager and isolated layout `Group` container for flicker-free incremental markdown rendering, paired with a dynamic dots spinner (`• • •`) during cloud API latency.
+6. **Styled Interactive Prompt Interface**: Upgrades the prompt session with advanced `prompt_toolkit` stylesheets (`royalblue` prompt, `cyan` prefix, `white` typed text, and `dim ansigray` auto-suggest), inline command history auto-suggestions (completed via Right Arrow), and visual spacer isolation that scrolls fluidly.
 
 ---
 

@@ -83,6 +83,7 @@
 ### 2026-05-30 12:40
 - docs: conduct premium systems architecture design session and compile `goal/architecture/PHASE2_EXECUTION_PLAN.md` mapping out async Stdio JSON-RPC MCP Server interfaces and layout-aware VisionRAG ColPali embedding pipelines
 
-
-
-
+### 2026-05-30 15:25
+- refactor: design and implement hyper-smooth Claude-Style token streaming print loops with dedicated Live manager, Group layout containers, and latency dots spinner animation
+- feat: upgrade CLI prompt loop with advanced prompt_toolkit stylesheets, royal blue / cyan colored token pairings, command history auto-suggestions, and visually isolated inline spacer layouts
+- release: register and publish adviser-cli@0.2.0 package to the public NPM registry, enabling global zero-dependency node installations
