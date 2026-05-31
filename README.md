@@ -76,13 +76,13 @@ adviser-cli-tool/
 This section showcases a live visual walkthrough of our Phase 1 MVP in action, verifying the mathematical and algorithmic correctness of all core layers:
 
 ### Step 1: Intelligent Environment Initialization
-![Intelligent Environment Initialization](./assets/init.png)
+![Intelligent Environment Initialization](https://github.com/prem22k/adviser-cli-tool/raw/main/assets/init.png)
 > **Explanation**: Executing `adviser init` launches our hardware-aware setup wizard. Rather than acting as a blind API wrapper, the system automatically profiles the local system architecture (detecting 6 CPU cores, 7.4 GB RAM, and the hardware tier), verifies if the Ollama daemon is installed, and mathematically recommends model sizes that can run safely within a strict memory footprint.
 
 ---
 
 ### Step 2: Local Vector Ingestion & Chunking
-![Local Vector Ingestion & Chunking](./assets/ingest.png)
+![Local Vector Ingestion & Chunking](https://github.com/prem22k/adviser-cli-tool/raw/main/assets/ingest.png)
 > **Explanation**: Showcases the high-performance execution of `adviser ingest` on 50 highly complex, confidential corporate crisis emails.
 >
 > **Data Provenance**: The test document corpus is sourced directly from the official [Kaggle Enron Email Dataset](https://www.kaggle.com/datasets/wcukierski/enron-email-dataset) benchmark corpus containing over 500,000 documents. The live walkthrough targets exactly 50 highly confidential crisis emails extracted from this massive corpus to verify the precision and latency of our hybrid dense-sparse vector ranking pipelines under complex multi-document corporate environments.
@@ -92,7 +92,7 @@ This section showcases a live visual walkthrough of our Phase 1 MVP in action, v
 ---
 
 ### Step 3: Direct Knowledge Retrieval & Financial Analysis
-![Direct Knowledge Retrieval & Financial Analysis](./assets/chat_1.png)
+![Direct Knowledge Retrieval & Financial Analysis](https://github.com/prem22k/adviser-cli-tool/raw/main/assets/chat_1.png)
 > **Explanation**: Showcases the interactive `adviser chat` performing granular semantic extractions from the ingested corpus. The interface utilizes a highly responsive, fluid layout paradigm operating as an integrated, reactive 3-line inline block:
 > *   **Line 1**: The active user input prompt featuring an advanced `prompt_toolkit` style sheet, displaying a cyan `> ` prefix paired with a bold royal_blue `User ❯ ` prompt string, where typed text is rendered in clean white.
 > *   **Line 2**: Exactly one (1) blank empty line breakout spacer to isolate the input field from status components.
@@ -103,7 +103,7 @@ This section showcases a live visual walkthrough of our Phase 1 MVP in action, v
 ---
 
 ### Step 4: Enterprise RAG Capabilities & Structural Analysis
-![Enterprise RAG Capabilities & Structural Analysis](./assets/chat_2.png)
+![Enterprise RAG Capabilities & Structural Analysis](https://github.com/prem22k/adviser-cli-tool/raw/main/assets/chat_2.png)
 > **Explanation**: Our multi-document synthesis in action, running within the fluid, inline-scrolling CLI prompt loop. The layout engine isolates the active input interaction space from the historical scrollback frames using vertical spacer lines, which are cleanly cleared upon submission via ANSI escape sequences to preserve a pristine terminal log. 
 > 
 > The tool navigates deep, multi-threaded corporate exchanges to formulate a concise 5-point analysis of structural and bankruptcy risks during energy volatility crises. It prints the exact local persistent chunk locations directly in the shell for immediate code audibility, cleanly bounded by dim horizontal separator lines `─` that mark the completion of each response turn without duplication.
@@ -111,7 +111,7 @@ This section showcases a live visual walkthrough of our Phase 1 MVP in action, v
 ---
 
 ### Step 5: Model Context Protocol (MCP) IDE Synergy
-![Model Context Protocol (MCP) IDE Synergy](./assets/mcp_synergy.png)
+![Model Context Protocol (MCP) IDE Synergy](https://github.com/prem22k/adviser-cli-tool/raw/main/assets/mcp_synergy.png)
 > **Explanation**: Showcases the agentic integration of Adviser-CLI running as an active local Model Context Protocol (MCP) server inside your development environment.
 > 
 > Executing `adviser mcp-install` launches our interactive TUI selection wizard, programmatically registering the stdio-transport server with your Cursor IDE, Claude Desktop, Windsurf, or Cline extensions. Once active, advanced developer agents (like Cursor Composer or Claude Code) natively call Adviser's tools—such as `query_local_vector_index` and `fetch_document_source`—to retrieve proprietary semantic context and workspace records in real-time, providing unified private RAG capabilities straight to your coding workflow.

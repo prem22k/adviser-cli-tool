@@ -101,3 +101,7 @@
 - fix: implement dynamic document directory bootstrapping and sample corpus auto-seeding inside `adviser ingest` to prevent unhandled FileNotFoundError tracebacks.
 - docs: capture and replace visual walkthrough screenshots with high-fidelity, authentic terminal run captures (`assets/init.png`, `assets/ingest.png`, `assets/chat_1.png`, `assets/mcp_synergy.png`).
 - release: bump version to `0.3.0` across all metadata files (`package.json`, `pyproject.toml`, and `adviser/__init__.py`) and register git release tag `v0.3.0`.
+
+### 2026-05-31 23:40
+- docs: refactor `README.md` image links to use absolute raw GitHub repository URLs to resolve image rendering bugs on GitHub Packages and NPM landing pages.
+- release: bump version to `0.3.1` across `package.json`, `pyproject.toml`, and `adviser/__init__.py`, registering tag `v0.3.1` and publishing the new release to the registry.
