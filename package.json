@@ -1,6 +1,6 @@
 {
   "name": "@prem22k/adviser-cli",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Terminal-native privacy-first local RAG assistant and IDE MCP server.",
   "main": "bin/cli.js",
   "bin": {
