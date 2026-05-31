@@ -123,14 +123,8 @@ This section showcases a live visual walkthrough of our Phase 1 MVP in action, v
 Adviser-CLI can be installed globally as a package, setting up its Python virtual environment and dependencies automatically.
 
 ### Option A: The NPM Installer (Recommended - Easiest & Runs Anywhere)
-If you have Node.js/NPM installed, you can install Adviser-CLI globally by routing the `@prem22k` scope to GitHub Packages and running the installer. The process automatically verifies your Python 3 environment, provisions a local virtualenv, and resolves dependencies in the background:
+If you have Node.js/NPM installed, you can install Adviser-CLI globally with a single command. The process automatically verifies your Python 3 environment, provisions a local virtualenv, and resolves dependencies in the background:
 
-1. Configure the `@prem22k` scope registry:
-```bash
-npm config set @prem22k:registry https://npm.pkg.github.com
-```
-
-2. Install the package globally:
 ```bash
 npm install -g @prem22k/adviser-cli
 ```
