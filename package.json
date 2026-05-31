@@ -17,7 +17,7 @@
     "url": "git+https://github.com/prem22k/adviser-cli-tool.git"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   },
   "keywords": [
     "rag",
