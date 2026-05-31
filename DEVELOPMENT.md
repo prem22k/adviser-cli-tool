@@ -94,3 +94,10 @@
   *   **Stdio-Transport Conformance**: Asynchronous stdio-based JSON-RPC v2.0 message parsing, schema validation for `query_local_vector_index` and `fetch_document_source`, and client connection lifecycle management.
   *   **SQLite WAL Concurrency**: Write-Ahead Logging (WAL) database transactions successfully verified under concurrent multi-process environments using read-only shared cache connections (`mode=ro`), completely eliminating locking exceptions.
   *   **VisionRAG Lazy-Loading Fallback**: Lazy-loading module fallback engine mechanics for visual layout-aware embeddings via ColPali (`vidore/colpali-v1.2`), verifying torch dependency guards, signature conformance, and high-fidelity runtime warning pipelines.
+
+### 2026-05-31 20:30
+- feat: expand cloud LLM API providers adding Anthropic Claude Messages SDK, OpenAI, DeepSeek V3.2, Mistral AI, OpenRouter, Together AI, and Fireworks AI, integrating them into the unified circuit-broken router.
+- feat: refactor setup wizard `adviser init` to employ premium prompt-toolkit interactive TUI checkbox and radio select dialog interfaces.
+- fix: implement dynamic document directory bootstrapping and sample corpus auto-seeding inside `adviser ingest` to prevent unhandled FileNotFoundError tracebacks.
+- docs: capture and replace visual walkthrough screenshots with high-fidelity, authentic terminal run captures (`assets/init.png`, `assets/ingest.png`, `assets/chat_1.png`, `assets/mcp_synergy.png`).
+- release: bump version to `0.3.0` across all metadata files (`package.json`, `pyproject.toml`, and `adviser/__init__.py`) and register git release tag `v0.3.0`.
