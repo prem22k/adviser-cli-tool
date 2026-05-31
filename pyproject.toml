@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adviser-cli"
-version = "0.3.2"
+version = "0.3.3"
 description = "Terminal-native zero-infrastructure RAG assistant for local documents."
 readme = "README.md"
 requires-python = ">=3.10"
