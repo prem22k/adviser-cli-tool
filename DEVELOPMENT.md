@@ -109,3 +109,7 @@
 ### 2026-05-31 23:45
 - docs: update `README.md` Option A installation commands to correctly document the `@prem22k` scope registry setup commands (`npm config set`) and correct package name (`@prem22k/adviser-cli`) to enable seamless global installations for everyone.
 - release: bump version to `0.3.2` across `package.json`, `pyproject.toml`, and `adviser/__init__.py`, registering tag `v0.3.2` and publishing the new release to the registry.
+
+### 2026-05-31 23:55
+- fix: resolve global installation 404/403 registry issues by bumping package version to `0.3.3` and publishing directly to the public NPM registry (`registry.npmjs.org`) as a public package. This enables zero-configuration, token-free global installations for all downstream developers.
+- release: bump version to `0.3.3` across `package.json`, `pyproject.toml`, and `adviser/__init__.py`, registering git tag `v0.3.3` and pushing tags to remote.
