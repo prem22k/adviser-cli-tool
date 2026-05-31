@@ -108,7 +108,41 @@ def chunk_id(text: str, source: str, idx: int) -> str:
 
 def ingest(force_reload: bool = False) -> dict[str, object]:
     if not settings.DATA_PATH.exists():
-        raise FileNotFoundError(f"Configured DATA_PATH does not exist: {settings.DATA_PATH}")
+        console.print(f"[yellow]Warning: Document directory {settings.DATA_PATH} not found.[/yellow]")
+        try:
+            settings.DATA_PATH.mkdir(parents=True, exist_ok=True)
+            console.print(f"[green]Created directory:[/green] {settings.DATA_PATH}")
+            
+            import shutil
+            cwd_demo = Path.cwd() / "demo_corpus"
+            package_demo = Path(__file__).resolve().parent.parent.parent / "demo_corpus"
+            
+            demo_dir = None
+            if cwd_demo.exists() and cwd_demo.is_dir():
+                demo_dir = cwd_demo
+            elif package_demo.exists() and package_demo.is_dir():
+                demo_dir = package_demo
+                
+            if demo_dir:
+                console.print(f"[cyan]Seeding document folder with sample corpus from[/cyan] [dim]{demo_dir}[/dim]")
+                for file_path in demo_dir.glob("*"):
+                    if file_path.is_file():
+                        shutil.copy(file_path, settings.DATA_PATH)
+                        console.print(f"  [dim]✔ Copied {file_path.name}[/dim]")
+            else:
+                readme_path = settings.DATA_PATH / "README.txt"
+                with readme_path.open("w", encoding="utf-8") as handle:
+                    handle.write(
+                        "Welcome to Adviser-CLI!\n\n"
+                        "Adviser has successfully created this directory to store your documents.\n"
+                        "To get started:\n"
+                        "1. Drop your text, markdown, PDF, or DOCX documents into this folder.\n"
+                        "2. Re-run `adviser ingest` to scan and index them.\n"
+                        "3. Run `adviser chat` to start querying your local knowledge base!\n"
+                    )
+                console.print(f"  [dim]✔ Created placeholder document: {readme_path.name}[/dim]")
+        except Exception as exc:
+            raise FileNotFoundError(f"Configured DATA_PATH does not exist and could not be created: {settings.DATA_PATH}") from exc
 
     try:
         import chromadb
