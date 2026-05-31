@@ -105,3 +105,7 @@
 ### 2026-05-31 23:40
 - docs: refactor `README.md` image links to use absolute raw GitHub repository URLs to resolve image rendering bugs on GitHub Packages and NPM landing pages.
 - release: bump version to `0.3.1` across `package.json`, `pyproject.toml`, and `adviser/__init__.py`, registering tag `v0.3.1` and publishing the new release to the registry.
+
+### 2026-05-31 23:45
+- docs: update `README.md` Option A installation commands to correctly document the `@prem22k` scope registry setup commands (`npm config set`) and correct package name (`@prem22k/adviser-cli`) to enable seamless global installations for everyone.
+- release: bump version to `0.3.2` across `package.json`, `pyproject.toml`, and `adviser/__init__.py`, registering tag `v0.3.2` and publishing the new release to the registry.
