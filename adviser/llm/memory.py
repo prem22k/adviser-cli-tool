@@ -23,4 +23,9 @@ class ConversationMemory:
             "If the answer is not in the context, say so plainly.\n\n"
             f"Context:\n{context}\n\nUser question:\n{user_query}"
         )
-        return [{"role": "system", "content": system_prompt}, *self.messages, {"role": "user", "content": content}]
+        # Answers are rendered as Markdown in a terminal, which shows LaTeX as raw source.
+        system = (
+            f"{system_prompt}\n\nFormat answers as plain Markdown. Never use LaTeX or math markup "
+            "(no \\frac, \\text, \\[ \\]); write formulas and calculations in plain text, e.g. 1,200 / 300 = 4."
+        )
+        return [{"role": "system", "content": system}, *self.messages, {"role": "user", "content": content}]

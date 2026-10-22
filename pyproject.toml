@@ -24,7 +24,8 @@ dependencies = [
   "ruamel.yaml>=0.18.0",
   "prompt_toolkit>=3.0.0",
   "psutil>=6.0.0",
-  "mcp>=1.0.0",
+  # 2.x replaced the lowlevel Server decorators (list_tools/call_tool) that adviser/mcp/server.py uses
+  "mcp>=1.0.0,<2",
   "anthropic>=0.18.0",
 ]
 
@@ -50,3 +51,8 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 include = ["adviser*"]
+
+# Not tracked by a MANIFEST, so list it: without it wheels ship no model catalog and `adviser init`
+# silently skips the local-model recommendation.
+[tool.setuptools.package-data]
+adviser = ["hardware/*.yaml"]
