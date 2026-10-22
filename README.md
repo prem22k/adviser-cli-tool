@@ -63,11 +63,11 @@ adviser-cli-tool/
 
 ### Technical Stack Breakdown
 
-*   **Core AI Engine & Context Synthesis**: Powered by frontier and open-weight reasoning models (including Anthropic Claude 3.5 Sonnet, OpenAI GPT-5.4-mini, DeepSeek V3.2, Mistral AI, Gemini, and Groq/Llama-3.3) combined with persistent ChromaDB dense-sparse RAG search to deliver fast, highly accurate, and secure document context analysis.
+*   **Core AI Engine & Context Synthesis**: Powered by frontier and open-weight reasoning models (including Anthropic Claude 3.5 Sonnet, OpenAI GPT-5.4-mini, DeepSeek V3.2, Mistral AI, Gemini, and Groq GPT-OSS) combined with persistent ChromaDB dense-sparse RAG search to deliver fast, highly accurate, and secure document context analysis.
 *   **CLI & Rich Terminal Rendering**: Powered by **Python + Typer + Rich**, presenting a stunning, highly responsive terminal UI with micro-animations, clean progress bars, and beautifully framed panels.
 *   **Local Persistent Vector Store**: Driven by a local **Persistent ChromaDB** client running semantic embeddings (`BAAI/bge-small-en-v1.5`) alongside classical keyword search (**Rank-BM25Okapi**).
 *   **Hybrid Reciprocal Rank Fusion (RRF)**: Algebraically fuses dense vector distances and sparse keyword BM25 ranks using customizable weights (`BM25_WEIGHT` vs `VECTOR_WEIGHT`) for elite context relevance.
-*   **Resilience Stack**: Session-aware **circuit breakers** actively monitor and cool down unstable endpoints (throttling HTTP 429/503 errors), cascading queries down a priority chain (Gemini 3.5 Flash / Claude Sonnet 4.6 ➔ Groq Llama 3.3 ➔ Local Ollama).
+*   **Resilience Stack**: Session-aware **circuit breakers** actively monitor and cool down unstable endpoints (throttling HTTP 429/503 errors), cascading queries down a priority chain (Gemini 3.5 Flash / Claude Sonnet 4.6 ➔ Groq GPT-OSS ➔ Local Ollama).
 
 ---
 

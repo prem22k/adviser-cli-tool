@@ -287,7 +287,7 @@ def init_command() -> None:
 
     # Defaults
     gemini_model = "gemini-3.5-flash"
-    groq_model = "llama-3.3-70b-versatile"
+    groq_model = "openai/gpt-oss-120b"
     openai_model = "gpt-5.4-mini"
     anthropic_model = "claude-3-5-sonnet-20241022"
     deepseek_model = "deepseek-chat"
@@ -388,12 +388,11 @@ def init_command() -> None:
                     title="Groq Model Selection",
                     text="Choose the active Groq model:",
                     values=[
-                        ("llama-3.3-70b-versatile", "llama-3.3-70b-versatile (Flagship Llama 70B reasoning - Recommended default)"),
-                        ("llama-3.1-8b-instant", "llama-3.1-8b-instant (Lightweight high-speed token saver)"),
-                        ("openai/gpt-oss-120b", "openai/gpt-oss-120b (High-capacity open flagship weights)"),
-                        ("openai/gpt-oss-20b", "openai/gpt-oss-20b (Ultra-fast, budget friendly)")
+                        ("openai/gpt-oss-120b", "openai/gpt-oss-120b (High-capacity open flagship weights - Recommended default)"),
+                        ("openai/gpt-oss-20b", "openai/gpt-oss-20b (Ultra-fast, budget friendly)"),
+                        ("qwen/qwen3.8-27b", "qwen/qwen3.8-27b (Efficient multilingual reasoning)")
                     ]
-                ).run() or "llama-3.3-70b-versatile"
+                ).run() or "openai/gpt-oss-120b"
 
             if "deepseek" in cloud_choices:
                 deepseek_model = radiolist_dialog(
@@ -608,6 +607,8 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
     memory = ConversationMemory(settings.CONVERSATION_WINDOW)
     session = PromptSession(
         style=PROMPT_STYLE,
+        # Erase the prompt block (input + status bar) on submit; the query is reprinted below as history.
+        erase_when_done=True,
         auto_suggest=AutoSuggestFromHistory(),
     )
     
@@ -670,19 +671,13 @@ def run_chat(profile_name: str | None, debug: bool) -> None:
             break
             
         if not query.strip():
-            # Clear the active single input line and the vertical spacer line above it
-            sys.stdout.write("\033[A\033[2K\033[A\033[2K")
+            # The prompt block is already erased; also clear the vertical spacer line above it
+            sys.stdout.write("\033[A\033[2K")
             sys.stdout.flush()
             continue
             
-        # 3. Clean up active prompt lines to preserve clean scrollback history
-        # Move up 2 lines (prompt input line and the vertical spacer line above it) and clear them
-        sys.stdout.write("\033[A\033[2K\033[A\033[2K")
-        sys.stdout.flush()
-        
-        # Print clean, high-fidelity prompt line in conversation history
-        # bounded cleanly by vertical spacer lines to keep the interaction visually isolated
-        console.print()
+        # 3. Print clean, high-fidelity prompt line in conversation history
+        # (the spacer above is kept; the erased prompt block left the cursor below it)
         console.print(f"[bold royal_blue]> {query.strip()}[/bold royal_blue]")
         console.print()
         

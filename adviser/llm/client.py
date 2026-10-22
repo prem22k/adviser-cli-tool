@@ -7,6 +7,7 @@ from typing import Any
 from rich.console import Console
 
 from adviser.config import settings
+from adviser.llm.plain_math import strip_latex
 from adviser.llm.router import CircuitBreaker
 
 console = Console()
@@ -60,7 +61,7 @@ class LLMClient:
                             first = False
                         chunks.append(token)
                         accumulated = "".join(chunks)
-                        live.update(Group(Markdown(accumulated)), refresh=True)
+                        live.update(Group(Markdown(strip_latex(accumulated))), refresh=True)
                         
             return "".join(chunks)
         except (RateLimitError, APIConnectionError, APITimeoutError):
@@ -137,7 +138,7 @@ class LLMClient:
                             first = False
                         chunks.append(token)
                         accumulated = "".join(chunks)
-                        live.update(Group(Markdown(accumulated)), refresh=True)
+                        live.update(Group(Markdown(strip_latex(accumulated))), refresh=True)
                         
             return "".join(chunks)
         except Exception:
@@ -190,7 +191,7 @@ class LLMClient:
                                 first = False
                             chunks.append(text)
                             accumulated = "".join(chunks)
-                            live.update(Group(Markdown(accumulated)), refresh=True)
+                            live.update(Group(Markdown(strip_latex(accumulated))), refresh=True)
                             
             return "".join(chunks)
         except Exception:
