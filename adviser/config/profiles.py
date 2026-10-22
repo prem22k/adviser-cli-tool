@@ -5,12 +5,29 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
+from rich.console import Console
 from ruamel.yaml import YAML
 
 YAML_ENGINE = YAML()
 CONFIG_ROOT = Path.home() / ".config" / "adviser"
 PROFILES_DIR = CONFIG_ROOT / "profiles"
 ACTIVE_PROFILE_FILE = CONFIG_ROOT / "active"
+
+console = Console()
+
+RETIRED_GROQ_MODELS = {
+    "llama-3.3-70b-versatile": "openai/gpt-oss-120b",
+    "llama-3.1-8b-instant": "openai/gpt-oss-20b",
+    "llama3-8b-8192": "openai/gpt-oss-20b",
+}
+
+
+def _migrate_groq_model(model: str) -> str:
+    replacement = RETIRED_GROQ_MODELS.get(model)
+    if replacement is None:
+        return model
+    console.print(f"[yellow]Groq retired {model}; using {replacement}[/yellow]")
+    return replacement
 
 
 @dataclass(slots=True)
@@ -24,7 +41,7 @@ class Profile:
     top_k: int = 15
     providers: list[str] = field(default_factory=list)
     gemini_model: str = "gemini-3.5-flash"
-    groq_model: str = "llama-3.3-70b-versatile"
+    groq_model: str = "openai/gpt-oss-120b"
     openai_model: str = "gpt-5.4-mini"
     anthropic_model: str = "claude-3-5-sonnet-20241022"
     deepseek_model: str = "deepseek-chat"
@@ -32,6 +49,9 @@ class Profile:
     openrouter_model: str = "meta-llama/llama-3.3-70b-instruct"
     together_model: str = "meta-llama/Llama-3.3-70b-instruct-turbo"
     fireworks_model: str = "accounts/fireworks/models/llama-v3-70b-instruct"
+
+    def __post_init__(self) -> None:
+        self.groq_model = _migrate_groq_model(self.groq_model)
 
     def save(self) -> Path:
         PROFILES_DIR.mkdir(parents=True, exist_ok=True)
@@ -50,7 +70,7 @@ class ProfileManager:
         db_path: str,
         providers: list[str],
         gemini_model: str = "gemini-3.5-flash",
-        groq_model: str = "llama-3.3-70b-versatile",
+        groq_model: str = "openai/gpt-oss-120b",
         openai_model: str = "gpt-5.4-mini",
         anthropic_model: str = "claude-3-5-sonnet-20241022",
         deepseek_model: str = "deepseek-chat",
@@ -85,7 +105,11 @@ class ProfileManager:
             raise FileNotFoundError(f"Profile not found: {name}")
         with target.open("r", encoding="utf-8") as handle:
             data = YAML_ENGINE.load(handle) or {}
-        return Profile(**data)
+        retired_groq_model = data.get("groq_model")
+        profile = Profile(**data)
+        if retired_groq_model in RETIRED_GROQ_MODELS:
+            profile.save()
+        return profile
 
     @staticmethod
     def list_profiles() -> list[str]:
